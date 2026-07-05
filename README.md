@@ -43,12 +43,15 @@ all hardware plumbing lives on the server side.
 
 - Navigation: speed (SOG), heading with live compass, course (COG), depth, GPS position
 - Engine: RPM tachometer gauge, engine temperature, oil pressure, engine load (with red-line / over-temp / low-oil warnings)
+- Generator (Onan): run status, output power/voltage/frequency, load, coolant temp, oil pressure, RPM, and total runtime hours (with out-of-range and over-temp/low-oil warnings)
 - Wind: apparent wind dial plus apparent/true speed and angle
 - **AIS targets**: north-up radar plot of nearby vessels plus a ranged list (name, distance, bearing, speed); close contacts are highlighted
 - **Anchor watch**: drop/weigh anchor, adjustable alarm radius, live drift distance and bearing, with an audible + full-screen visual **drag alarm**
 - Environment: water and air temperature
 - Electrical (Victron): battery state of charge, voltage, current, solar (PV), AC load
 - Tanks: fuel, fresh water, black water with low/high level warnings
+- **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay
+- **Cameras tab**: up to 4 IP camera streams in an adaptive grid with tap-to-expand (MJPEG, JPEG snapshot, HLS, and plain video)
 - Demo mode with realistic simulated data (including AIS traffic and engine data)
 - Day / night themes and configurable units (knots/kmh, °C/°F, m/ft)
 - Stale-data indicators when a sensor stops updating
@@ -65,6 +68,42 @@ python3 -m http.server 8080
 ```
 
 You can also host the folder directly from the Signal K server as a webapp.
+
+### Weather radar
+
+Switch to the **Weather Radar** tab (top of the screen) for an animated
+precipitation map centered on the vessel. It reads your position from Signal K
+(falling back to the tablet's browser geolocation, then a default), drops a boat
+marker that follows you, and loops the most recent radar frames. Drag the map to
+look around; tap **⌖ Boat** to recenter and resume following.
+
+The radar and map require an internet connection (it streams map/radar tiles).
+External data sources — thank you to these free providers:
+
+- Map library: [Leaflet](https://leafletjs.com)
+- Base map tiles: OpenStreetMap contributors & [CARTO](https://carto.com/)
+- Precipitation radar: [RainViewer](https://www.rainviewer.com) public API (no key required)
+- Nautical seamarks: [OpenSeaMap](https://www.openseamap.org)
+
+### Cameras
+
+The **Cameras** tab shows up to 4 IP camera streams in an adaptive grid — tap
+any feed to expand it to full screen, tap again to restore. Streams start when
+the tab is open and stop when you leave it to save bandwidth. Configure them in
+**⚙ Settings → Cameras** (name, URL, and type). Streams play with the browser's
+native capabilities:
+
+| Type | Notes |
+|------|-------|
+| **MJPEG** | Played in an `<img>`; works out of the box (many cameras expose `.../mjpg/video.mjpg`) |
+| **JPEG snapshot** | Polls a still-image URL ~1×/sec |
+| **HLS** (`.m3u8`) | Native on iOS/Safari; elsewhere [hls.js](https://github.com/video-dev/hls.js) is loaded on demand |
+| **Video** | Plain `mp4` / `webm` over HTTP |
+| **RTSP** | **Not playable in a browser.** Route it through a gateway such as [go2rtc](https://github.com/AlexxIT/go2rtc), [MediaMTX](https://github.com/bluenviron/mediamtx), or [Frigate](https://frigate.video/) that re-publishes the camera as HLS or MJPEG, then use that URL. |
+
+*Type* defaults to **Auto**, which infers the format from the URL. In demo mode
+with no cameras configured, a public test HLS stream is shown so you can confirm
+the tab works.
 
 ### Connecting to live data
 
@@ -90,6 +129,11 @@ The **Demo** button switches back to simulated data at any time.
 | Engine temp        | `propulsion.<id>.temperature`                  |
 | Oil pressure       | `propulsion.<id>.oilPressure`                  |
 | Engine load        | `propulsion.<id>.engineLoad`                   |
+| Generator status   | `electrical.generators.<id>.state` (or inferred from revolutions/frequency) |
+| Generator output   | `electrical.generators.<id>.voltage` / `frequency` / `current` / `power` |
+| Generator load     | `electrical.generators.<id>.load`              |
+| Generator engine   | `electrical.generators.<id>.revolutions` / `temperature` / `oilPressure` |
+| Generator runtime  | `electrical.generators.<id>.runTime` (s → hrs) |
 | Battery            | `electrical.batteries.house.*`                 |
 | Solar              | `electrical.solar.pv.panelPower`               |
 | AC load            | `electrical.ac.consumption.power`              |
@@ -103,6 +147,14 @@ id per engine). The app ships configured for twin engines — **Caterpillar C9
 Port** (`propulsion.port`) and **Caterpillar C9 Starboard**
 (`propulsion.starboard`) — each rendered as its own panel. Leave an engine's id
 blank to hide it, or rename either to match your vessel.
+
+The **generator** is configurable in **Settings → Generator** (name, Signal K
+id, and nominal voltage/frequency). It ships as **Onan Generator**
+(`electrical.generators.onan`) with 120 V / 60 Hz nominals driving the
+out-of-range warnings; set 230 V / 50 Hz for European systems, or clear the id
+to hide the panel. Runtime detects "running" from an explicit `state` value if
+your gateway provides one, otherwise from engine revolutions or output
+frequency.
 
 ### AIS & the anchor watch
 

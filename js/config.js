@@ -28,6 +28,16 @@ const DEFAULTS = {
     { id: 'starboard', label: 'Caterpillar C9 Starboard' },
   ],
 
+  // Onan (or other) generator. Reads Signal K paths under
+  // electrical.generators.<id>.*  Nominal voltage/frequency drive the
+  // out-of-range warning bands. Clear the id to hide the panel.
+  generator: {
+    id: 'onan',
+    label: 'Onan Generator',
+    nominalVoltage: 120,    // V (North America: 120; Europe: 230)
+    nominalFrequency: 60,   // Hz (North America: 60; Europe: 50)
+  },
+
   // Anchor watch. When set, the app alarms if the boat drifts beyond radius.
   anchor: {
     set: false,       // true once an anchor position is dropped
@@ -36,6 +46,18 @@ const DEFAULTS = {
     radius: 30,       // alarm radius in meters
     sound: true,      // audible alarm on drift
   },
+
+  // IP cameras (up to 4). Each: { name, url, type }.
+  //   type: 'auto' | 'mjpeg' | 'snapshot' | 'hls' | 'video' | 'rtsp'
+  // Browsers can play MJPEG/JPEG-snapshot (via <img>), HLS (.m3u8) and plain
+  // video directly. RTSP is NOT playable in a browser — route it through a
+  // gateway (go2rtc / MediaMTX / Frigate) that outputs HLS or MJPEG.
+  cameras: [
+    { name: 'Camera 1', url: '', type: 'auto' },
+    { name: 'Camera 2', url: '', type: 'auto' },
+    { name: 'Camera 3', url: '', type: 'auto' },
+    { name: 'Camera 4', url: '', type: 'auto' },
+  ],
 };
 
 export const settings = load();

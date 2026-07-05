@@ -147,3 +147,15 @@ export function formatRange(meters) {
   if (meters < 1852) return `${Math.round(meters)} m`;
   return `${(meters * NM_PER_M).toFixed(2)} NM`;
 }
+
+
+// ---- Generator helpers -----------------------------------------------------
+// Runtime is reported in seconds; show it in hours.
+export function secondsToHours(v) {
+  return v == null ? null : v / 3600;
+}
+
+// Power in watts -> kilowatts.
+export function wToKw(v) {
+  return v == null ? null : v / 1000;
+}
