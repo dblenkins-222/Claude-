@@ -53,6 +53,7 @@ function buildAll(root) {
   root.innerHTML = '';
   root.appendChild(buildBatterySection('House Battery Bank', settings.dcSystem.shuntId || 'house', { timeRemaining: true }));
   root.appendChild(buildBatterySection('Crank Battery Bank', settings.dcSystem.crankShuntId || 'starter', { timeRemaining: false }));
+  root.appendChild(buildSolarSection());
   root.appendChild(buildDcLoadsSection());
   root.appendChild(buildAcLoadsSection());
   if (settings.generator && settings.generator.id) {
@@ -137,6 +138,24 @@ function buildBatterySection(title, shuntId, { timeRemaining = false } = {}) {
       return { text: formatDuration(s), unit: '' };
     }, [B('capacity.timeRemaining')]);
   }
+
+  return sec;
+}
+
+// ---- Solar (Victron MPPT) -------------------------------------------------
+function buildSolarSection() {
+  const sid = settings.dcSystem.solarId || 'pv';
+  const S = (s) => `electrical.solar.${sid}.${s}`;
+  const { sec, body } = section('Solar · MPPT', 'elec');
+
+  const grid = document.createElement('div');
+  grid.className = 'tile-grid';
+  body.appendChild(grid);
+
+  tile(grid, 'PV Power', () => ({ text: U.fmt(store.get(S('panelPower')), 0), unit: 'W' }), [S('panelPower')]);
+  tile(grid, 'PV Voltage', () => ({ text: U.fmt(store.get(S('panelVoltage')), 1), unit: 'V' }), [S('panelVoltage')]);
+  tile(grid, 'Charge Current', () => ({ text: U.fmt(store.get(S('current')), 1), unit: 'A' }), [S('current')]);
+  tile(grid, 'Yield Today', () => ({ text: U.fmt(store.get(S('yieldToday')), 2), unit: 'kWh' }), [S('yieldToday')]);
 
   return sec;
 }

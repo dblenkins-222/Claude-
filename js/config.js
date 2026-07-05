@@ -45,6 +45,7 @@ const DEFAULTS = {
   dcSystem: {
     shuntId: 'house',        // SmartShunt battery id for the house bank
     crankShuntId: 'starter', // SmartShunt battery id for the crank/start bank
+    solarId: 'pv',           // Victron MPPT solar charger id (electrical.solar.<id>.*)
     nominalVoltage: 12,
     dischargeNegative: true,
   },

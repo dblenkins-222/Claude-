@@ -111,6 +111,7 @@ The **Electrical** tab consolidates the boat's power systems:
 
 - **House Battery Bank** — state of charge, voltage, current, power, and time-remaining (from a Victron SmartShunt, `electrical.batteries.<houseShunt>.*`)
 - **Crank Battery Bank** — state of charge, voltage, current, power from a second Victron SmartShunt (`electrical.batteries.<crankShunt>.*`)
+- **Solar · MPPT** — PV power, PV voltage, charge current, and today's yield (`electrical.solar.<id>.*`)
 - **12 VDC loads** — calculated from the house SmartShunt as *bus voltage × discharge current*. Configure the house and crank shunt battery ids, DC nominal voltage, and the discharge-current sign convention in **⚙ Settings → Electrical**.
 - The standalone "Electrical · Victron" panel has been removed from the Dashboard; electrical data now lives on this tab.
 - **240 VAC loads** — from `electrical.ac.consumption.*` (power, voltage, current)

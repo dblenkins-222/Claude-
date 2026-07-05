@@ -95,6 +95,7 @@ function openSettings() {
   const dc = settings.dcSystem || {};
   el('elec-shunt-id').value = dc.shuntId || '';
   el('elec-crank-id').value = dc.crankShuntId || '';
+  el('elec-solar-id').value = dc.solarId || '';
   el('elec-dc-voltage').value = dc.nominalVoltage ?? 12;
   el('elec-discharge-neg').checked = dc.dischargeNegative !== false;
   el('elec-ac-voltage').value = (settings.acSystem && settings.acSystem.nominalVoltage) ?? 240;
@@ -136,6 +137,7 @@ function saveSettingsForm() {
   settings.dcSystem = {
     shuntId: el('elec-shunt-id').value.trim() || 'house',
     crankShuntId: el('elec-crank-id').value.trim() || 'starter',
+    solarId: el('elec-solar-id').value.trim() || 'pv',
     nominalVoltage: parseFloat(el('elec-dc-voltage').value) || 12,
     dischargeNegative: el('elec-discharge-neg').checked,
   };

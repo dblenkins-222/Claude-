@@ -32,6 +32,7 @@ const sim = {
   crankVoltage: 12.8,  // V
   crankCurrent: -0.3,  // A
   solarPower: 240,     // W
+  solarYield: 4.2,     // kWh accumulated today
   acLoad: 320,         // W
   // Tanks (ratio)
   fuel: 0.62,
@@ -143,7 +144,15 @@ function tick() {
   set(`electrical.batteries.${crankId}.current`, sim.crankCurrent);
   set(`electrical.batteries.${crankId}.power`, sim.crankVoltage * sim.crankCurrent);
 
-  set('electrical.solar.pv.panelPower', sim.solarPower);
+  // Solar / MPPT charger.
+  const solarId = settings.dcSystem?.solarId || 'pv';
+  sim.solarYield += sim.solarPower / 3600 / 1000; // W over ~1s -> kWh
+  const panelV = sim.solarPower > 5 ? 60 + Math.random() * 22 : 0;
+  set(`electrical.solar.${solarId}.panelPower`, sim.solarPower);
+  set(`electrical.solar.${solarId}.panelVoltage`, panelV);
+  set(`electrical.solar.${solarId}.voltage`, sim.battVoltage);
+  set(`electrical.solar.${solarId}.current`, sim.battVoltage ? sim.solarPower / sim.battVoltage : 0);
+  set(`electrical.solar.${solarId}.yieldToday`, sim.solarYield);
   // 240 VAC loads.
   const acVoltage = (settings.acSystem?.nominalVoltage || 240) + (Math.random() - 0.5) * 4;
   set('electrical.ac.consumption.power', sim.acLoad);
