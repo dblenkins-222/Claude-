@@ -204,6 +204,50 @@ Simrad NMEA 2000 network. **Verify what's already installed** before ordering.
 
 `*` Optional / conditional — see notes.
 
+## Recommended parts & sizing
+
+Indicative sizing for the **monitoring additions** only (the existing propulsion,
+house-bank and AC distribution wiring is assumed already installed and protected).
+**These are starting-point figures — confirm against each device's manual, your
+actual loads and run lengths, and ABYC / AS-NZS 3004.2 & 3000, and have a
+qualified marine electrician sign off.**
+
+**Guiding principles**
+- A fuse/breaker protects the **wire**: rate it **≥ the device's continuous draw**
+  and **≤ the wire's ampacity**, and place it at the **source** of the positive.
+- Size cable for **voltage drop**, not just ampacity — aim ≤ 3% for critical
+  circuits, ≤ 10% for non-critical (ABYC E-11); upsize on long runs.
+- Every **240 VAC** circuit must be behind an **RCD/MCB** per AS-NZS 3000/3004.2.
+
+| Circuit (added for monitoring) | Typical draw | Wire gauge | Protection at source |
+|---|---|---|---|
+| Cerbo GX supply (from house bank) | < 0.5 A | 16 AWG / 1.5 mm² | **3 A** inline fuse |
+| NMEA 2000 network power tee | ~0.5–1.5 A (LEN dependent) | N2K backbone cable | **4 A** inline fuse |
+| PoE Ethernet switch (12 V) | switch W ÷ 12 | 16 AWG / 1.5 mm² | ~1.25× draw (e.g. **7.5 A** for a ~60 W switch) |
+| 4G/5G / Starlink router (12 V) | ~1–4 A | 16 AWG / 1.5 mm² | **5–7.5 A** |
+| IP cameras ×4 | PoE (from switch) | Cat5e/6 (marine) | via the switch |
+| J1939 → N2K gateways | powered from N2K | N2K drop cable | via the N2K 4 A fuse |
+| SmartShunt sense/supply lead | < 0.1 A | supplied lead | **1 A** (supplied with shunt) |
+| SmartShunt main path | full bank current | = existing bank negative cable | shunt **rated ≥ bank max** (e.g. 500 A) |
+| Generator start/stop signal | < 1 A | 16–18 AWG | via a **Cerbo relay**; per genset manual |
+| AC energy meter (240 V) | measured line | per meter manual | **MCB + RCD** per AS-NZS 3000 |
+| Centaur charger AC input | per model | per charger manual | **AC breaker** per Centaur manual |
+
+**12 V DC wire-gauge quick guide** (short runs < 3 m; upsize for voltage drop)
+
+| Continuous current | Minimum gauge |
+|---|---|
+| ≤ 5 A | 18 AWG (0.75–1.0 mm²) |
+| ≤ 7.5 A | 16 AWG (1.5 mm²) |
+| ≤ 10 A | 16–14 AWG (1.5–2.5 mm²) |
+| ≤ 15 A | 14 AWG (2.5 mm²) |
+
+**Fuse/breaker types**
+- Small electronics (Cerbo, router, switch): inline **blade fuse** holders (ATO/ATC)
+  or a small fused distribution block fed from the house bank.
+- NMEA 2000: the powered tee's inline fuse (typically **4 A**) — one power point only.
+- Marine-rated (ignition-protected where required near engines/genset/fuel).
+
 ## Notes specific to this boat
 
 - **240 VAC loads need a meter.** The **Centaur** is a charger with no data
