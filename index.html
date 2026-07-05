@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Boat Monitor</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">⚓</span>
+      <span class="brand-name">Boat Monitor</span>
+    </div>
+
+    <div class="status">
+      <span id="status-dot" class="status-dot off"></span>
+      <span id="status-text">Disconnected</span>
+    </div>
+
+    <div class="mode-toggle">
+      <button id="btn-live" class="pill">Live</button>
+      <button id="btn-demo" class="pill">Demo</button>
+    </div>
+
+    <div class="topbar-right">
+      <span id="clock" class="clock">--:--</span>
+      <button id="btn-theme" class="icon-btn">☀ Day</button>
+      <button id="btn-settings" class="icon-btn">⚙ Settings</button>
+    </div>
+  </header>
+
+  <div id="alarm-banner" class="alarm-banner" hidden>
+    <span class="alarm-banner-text">⚓ ANCHOR DRAG ALARM — boat outside set radius</span>
+    <button id="alarm-ack" class="alarm-banner-btn">Silence</button>
+  </div>
+
+  <main id="dashboard" class="dashboard"><!-- built by dashboard.js --></main>
+
+  <!-- Settings modal -->
+  <div id="settings-modal" class="modal">
+    <div class="modal-card">
+      <h2>Settings</h2>
+
+      <fieldset>
+        <legend>Signal K Server</legend>
+        <label>Host / IP
+          <input id="host-input" type="text" placeholder="e.g. 192.168.1.50 or venus.local" />
+        </label>
+        <label>Port
+          <input id="port-input" type="number" value="3000" />
+        </label>
+        <label class="checkbox">
+          <input id="tls-input" type="checkbox" /> Use TLS (wss/https)
+        </label>
+        <p class="hint">
+          Point this at your Signal K server. On a Cerbo GX running Venus OS Large
+          the default is the Cerbo's IP on port 3000. On OpenPlotter / Raspberry Pi
+          it is likewise port 3000.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Display Units</legend>
+        <label>Speed
+          <select id="speed-unit">
+            <option value="kn">Knots</option>
+            <option value="kmh">km/h</option>
+          </select>
+        </label>
+        <label>Temperature
+          <select id="temp-unit">
+            <option value="C">Celsius</option>
+            <option value="F">Fahrenheit</option>
+          </select>
+        </label>
+        <label>Depth
+          <select id="depth-unit">
+            <option value="m">Meters</option>
+            <option value="ft">Feet</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Engines</legend>
+        <label>Engine 1 name
+          <input id="engine1-label" type="text" placeholder="e.g. Caterpillar C9 Port" />
+        </label>
+        <label>Engine 1 Signal K id
+          <input id="engine1-id" type="text" placeholder="e.g. port, 0" />
+        </label>
+        <label>Engine 2 name
+          <input id="engine2-label" type="text" placeholder="e.g. Caterpillar C9 Starboard" />
+        </label>
+        <label>Engine 2 Signal K id
+          <input id="engine2-id" type="text" placeholder="e.g. starboard, 1" />
+        </label>
+        <p class="hint">
+          Each engine maps to the Signal K path <code>propulsion.&lt;id&gt;.*</code>.
+          Twin-engine boats commonly use <code>port</code> and <code>starboard</code>.
+          Leave an engine's id blank to hide it. Check your server's Data Browser
+          if unsure.
+        </p>
+      </fieldset>
+
+      <div class="modal-actions">
+        <button id="settings-cancel" class="btn ghost">Cancel</button>
+        <button id="settings-save" class="btn primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
