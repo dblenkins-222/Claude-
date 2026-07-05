@@ -39,6 +39,11 @@ all hardware plumbing lives on the server side.
 > Both connect to your NMEA 2000 network and Victron Cerbo GX. See the top of
 > the Cerbo guide for a side-by-side comparison to help you choose.
 
+> **Wiring it up?** See [docs/wiring-diagram.md](docs/wiring-diagram.md) for a
+> system + NMEA 2000 backbone diagram (twin CAT C9s via J1939 gateways, Onan
+> generator, dual Victron SmartShunts, MPPT, inverter-charger, cameras) and a
+> connection reference mapping each device to its app panel.
+
 ## Features
 
 - Navigation: speed (SOG), heading with live compass, course (COG), depth, GPS position
