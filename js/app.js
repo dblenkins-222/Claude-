@@ -7,7 +7,7 @@ import { connectSignalK, disconnectSignalK } from './signalk.js';
 import { startMock, stopMock } from './mock.js';
 import { buildDashboard } from './dashboard.js';
 import { startAnchorWatch, onAnchorChange, acknowledgeAlarm } from './anchor.js';
-import { initWeather, onWeatherShown } from './weather.js';
+import { initWeather, onWeatherShown, onWeatherHidden } from './weather.js';
 import { initCameras, onCamerasShown, onCamerasHidden, rebuildCameras } from './camera.js';
 import { initElectrical, onElectricalShown, rebuildElectrical } from './electrical.js';
 import { initTides, onTidesShown } from './tides.js';
@@ -83,6 +83,7 @@ function openSettings() {
   el('speed-unit').value = settings.speedUnit;
   el('temp-unit').value = settings.tempUnit;
   el('depth-unit').value = settings.depthUnit;
+  el('data-saver').checked = !!settings.dataSaver;
   const engines = settings.engines || [];
   el('engine1-label').value = engines[0]?.label || '';
   el('engine1-id').value = engines[0]?.id || '';
@@ -117,6 +118,7 @@ function saveSettingsForm() {
   settings.speedUnit = el('speed-unit').value;
   settings.tempUnit = el('temp-unit').value;
   settings.depthUnit = el('depth-unit').value;
+  settings.dataSaver = el('data-saver').checked;
   const prevEngines = JSON.stringify(settings.engines);
   const engines = [];
   const e1id = el('engine1-id').value.trim();
@@ -161,6 +163,8 @@ function saveSettingsForm() {
   if (enginesChanged) buildDashboard(el('dashboard'));
   if (genChanged || elecChanged) rebuildElectrical();
   if (camsChanged) rebuildCameras();
+  // Re-apply weather radar activity (e.g. data-saver just toggled) if viewing it.
+  if (!el('weather-view').hidden) onWeatherShown();
   // If we're live, reconnect with the new host.
   if (!settings.demoMode) goLive();
 }
@@ -180,6 +184,7 @@ function initTabs() {
       view: el('weather-view'),
       // Lazy-init the map on first view (Leaflet needs a visible container).
       onShow: () => { initWeather(); onWeatherShown(); },
+      onHide: () => onWeatherHidden(),
     },
     tides: {
       btn: el('tab-tides'),

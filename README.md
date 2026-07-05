@@ -152,6 +152,34 @@ depth-unit setting (m/ft). The demo location is **The Boat Works, Coomera QLD
 4209** (on the tidal Coomera River), so the demo shows real Coomera tides. If a
 vessel is ever inland with no tide, the graph falls back to Coomera with a note.
 
+### Onboard hosting & cellular use
+
+The tablet reaches the internet via **cellular or WiFi**. The app needs two
+kinds of connection: your **Signal K server** (on the boat's local network) and
+a few **HTTPS APIs** (radar, forecast, tides).
+
+- On the boat's **WiFi** (with internet via a cellular router / Starlink),
+  everything works: live Signal K + LAN cameras *and* the online weather/tide data.
+- On the tablet's **cellular alone** (off the boat network), the online
+  weather/forecast/tides still work, but live Signal K data and LAN cameras are
+  not reachable — they live on the boat's network (unless exposed remotely via
+  VRM/VPN/port-forward).
+
+**For live use, host the app from the boat over `http://`.** Browsers block an
+HTTPS page (like the GitHub Pages demo) from connecting to a local `ws://` Signal
+K server or `http://` LAN cameras (mixed-content). Serving the app from the
+Signal K server — or any local static server on the boat — over `http://` avoids
+this: local data works, and the page can still load the external HTTPS
+weather/tide APIs. Copy the project into Signal K's public/static directory, or
+serve the folder locally. Use the GitHub Pages URL for demos/UI review; use
+onboard hosting underway.
+
+**Data usage:** enable **Data saver** in Settings on metered cellular. It pauses
+the weather-radar animation and background refresh whenever the Weather tab isn't
+open, and shows a single static radar frame instead of looping. The dashboard,
+electrical and LAN-camera data use no internet; forecast and tides are only a few
+KB per refresh.
+
 ### Connecting to live data
 
 1. Open **Settings** (gear icon).

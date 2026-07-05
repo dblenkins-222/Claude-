@@ -20,6 +20,11 @@ const DEFAULTS = {
   // Depth display unit: 'm' | 'ft'
   depthUnit: 'm',
 
+  // Data saver: on metered cellular, pause the weather radar animation and its
+  // background refresh when the Weather tab isn't open, and show a single static
+  // radar frame instead of looping.
+  dataSaver: false,
+
   // Engines shown on the dashboard. `id` is the Signal K instance in the path
   // propulsion.<id>.*; `label` is the display name. Twin-engine boats commonly
   // use the instances 'port' and 'starboard'.

@@ -44,6 +44,9 @@ let playing = true;
 let animTimer = null;
 let followBoat = true;
 let initialized = false;
+let visible = true;
+let radarRefreshTimer = null;
+let forecastTimer = null;
 let ui = {};
 
 function boatLatLon() {
@@ -113,7 +116,9 @@ export async function initWeather() {
 
   wireControls();
   await loadFrames();
-  play();
+  visible = true;
+  if (settings.dataSaver) pause(); else play(); // static frame vs. animated loop
+  startRadarTimers();
 
   store.subscribe((path) => {
     if (path === 'navigation.position.latitude' || path === 'navigation.position.longitude') {
@@ -121,11 +126,9 @@ export async function initWeather() {
     }
   });
 
-  setInterval(refreshFrames, REFRESH_MS);
-
   // Forecast for the current position, refreshed periodically.
   loadForecast(center[0], center[1]);
-  setInterval(() => {
+  forecastTimer = setInterval(() => {
     const c = boatLatLon() || lastForecastCenter;
     if (c) loadForecast(c[0], c[1]);
   }, FORECAST_REFRESH_MS);
@@ -136,12 +139,39 @@ export async function initWeather() {
 // Called every time the Weather tab becomes visible (fixes map sizing and
 // re-centers if we're following the boat).
 export function onWeatherShown() {
+  visible = true;
   if (!map) return;
   map.invalidateSize();
   if (followBoat) {
     const c = boatLatLon();
     if (c) map.panTo(c);
   }
+  // Resume radar activity (or refresh a single static frame in data-saver mode).
+  if (settings.dataSaver) {
+    pause();
+    loadFrames();
+  } else {
+    play();
+  }
+  startRadarTimers();
+}
+
+// Called when leaving the Weather tab — stop animation and background refreshes
+// so we don't keep pulling radar tiles (important on metered cellular).
+export function onWeatherHidden() {
+  visible = false;
+  pause();
+  stopRadarTimers();
+}
+
+function startRadarTimers() {
+  stopRadarTimers();
+  if (!visible || settings.dataSaver) return; // no background radar refresh
+  radarRefreshTimer = setInterval(refreshFrames, REFRESH_MS);
+}
+
+function stopRadarTimers() {
+  if (radarRefreshTimer) { clearInterval(radarRefreshTimer); radarRefreshTimer = null; }
 }
 
 function frameUrl(f) {
