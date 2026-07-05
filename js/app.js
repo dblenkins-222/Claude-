@@ -94,6 +94,7 @@ function openSettings() {
   el('gen-frequency').value = String(gen.nominalFrequency ?? 60);
   const dc = settings.dcSystem || {};
   el('elec-shunt-id').value = dc.shuntId || '';
+  el('elec-crank-id').value = dc.crankShuntId || '';
   el('elec-dc-voltage').value = dc.nominalVoltage ?? 12;
   el('elec-discharge-neg').checked = dc.dischargeNegative !== false;
   el('elec-ac-voltage').value = (settings.acSystem && settings.acSystem.nominalVoltage) ?? 240;
@@ -134,6 +135,7 @@ function saveSettingsForm() {
   const prevElec = JSON.stringify([settings.dcSystem, settings.acSystem]);
   settings.dcSystem = {
     shuntId: el('elec-shunt-id').value.trim() || 'house',
+    crankShuntId: el('elec-crank-id').value.trim() || 'starter',
     nominalVoltage: parseFloat(el('elec-dc-voltage').value) || 12,
     dischargeNegative: el('elec-discharge-neg').checked,
   };

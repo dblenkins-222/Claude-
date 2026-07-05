@@ -27,6 +27,10 @@ const sim = {
   battSoc: 0.86,       // ratio
   battVoltage: 13.2,   // V
   battCurrent: -8.5,   // A (negative = discharge)
+  // Crank / start battery (kept near full, small parasitic draw)
+  crankSoc: 0.99,      // ratio
+  crankVoltage: 12.8,  // V
+  crankCurrent: -0.3,  // A
   solarPower: 240,     // W
   acLoad: 320,         // W
   // Tanks (ratio)
@@ -129,6 +133,16 @@ function tick() {
   } else {
     set('electrical.batteries.house.capacity.timeRemaining', null);
   }
+  // Crank / start battery bank (separate SmartShunt).
+  sim.crankCurrent = wander(sim.crankCurrent, 0.3, -1.5, 3);
+  sim.crankSoc = Math.min(1, Math.max(0.9, sim.crankSoc + sim.crankCurrent * 0.0000008));
+  sim.crankVoltage = 12.5 + sim.crankSoc * 0.9 + (Math.random() - 0.5) * 0.04;
+  const crankId = settings.dcSystem?.crankShuntId || 'starter';
+  set(`electrical.batteries.${crankId}.stateOfCharge`, sim.crankSoc);
+  set(`electrical.batteries.${crankId}.voltage`, sim.crankVoltage);
+  set(`electrical.batteries.${crankId}.current`, sim.crankCurrent);
+  set(`electrical.batteries.${crankId}.power`, sim.crankVoltage * sim.crankCurrent);
+
   set('electrical.solar.pv.panelPower', sim.solarPower);
   // 240 VAC loads.
   const acVoltage = (settings.acSystem?.nominalVoltage || 240) + (Math.random() - 0.5) * 4;

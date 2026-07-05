@@ -43,7 +43,8 @@ const DEFAULTS = {
   // voltage x discharge current. `dischargeNegative` matches the common Victron
   // convention where a negative current means the battery is discharging.
   dcSystem: {
-    shuntId: 'house',
+    shuntId: 'house',        // SmartShunt battery id for the house bank
+    crankShuntId: 'starter', // SmartShunt battery id for the crank/start bank
     nominalVoltage: 12,
     dischargeNegative: true,
   },

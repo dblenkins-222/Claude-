@@ -51,7 +51,8 @@ function renderAll() {
 
 function buildAll(root) {
   root.innerHTML = '';
-  root.appendChild(buildBatterySection());
+  root.appendChild(buildBatterySection('House Battery Bank', settings.dcSystem.shuntId || 'house', { timeRemaining: true }));
+  root.appendChild(buildBatterySection('Crank Battery Bank', settings.dcSystem.crankShuntId || 'starter', { timeRemaining: false }));
   root.appendChild(buildDcLoadsSection());
   root.appendChild(buildAcLoadsSection());
   if (settings.generator && settings.generator.id) {
@@ -99,11 +100,10 @@ function tile(body, label, valueFn, paths) {
   });
 }
 
-// ---- House battery / SmartShunt -------------------------------------------
-function buildBatterySection() {
-  const shuntId = settings.dcSystem.shuntId || 'house';
+// ---- Battery bank (SmartShunt) — used for both house and crank banks -------
+function buildBatterySection(title, shuntId, { timeRemaining = false } = {}) {
   const B = (s) => `electrical.batteries.${shuntId}.${s}`;
-  const { sec, body } = section('House Battery · SmartShunt', 'elec');
+  const { sec, body } = section(title, 'elec');
 
   const socRow = document.createElement('div');
   socRow.className = 'battery-row';
@@ -131,10 +131,12 @@ function buildBatterySection() {
     return { text: U.fmt(a, 1), unit: 'A' };
   }, [B('current')]);
   tile(grid, 'Power', () => ({ text: U.fmt(store.get(B('power')), 0), unit: 'W' }), [B('power')]);
-  tile(grid, 'Time Remaining', () => {
-    const s = store.get(B('capacity.timeRemaining'));
-    return { text: formatDuration(s), unit: '' };
-  }, [B('capacity.timeRemaining')]);
+  if (timeRemaining) {
+    tile(grid, 'Time Remaining', () => {
+      const s = store.get(B('capacity.timeRemaining'));
+      return { text: formatDuration(s), unit: '' };
+    }, [B('capacity.timeRemaining')]);
+  }
 
   return sec;
 }

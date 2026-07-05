@@ -28,7 +28,6 @@ export function buildDashboard(root) {
   root.appendChild(buildAisSection());
   root.appendChild(buildAnchorSection());
   root.appendChild(buildEnvironmentSection());
-  root.appendChild(buildElectricalSection());
   root.appendChild(buildTankSection());
 
   // Re-render on any store change, throttled to one paint per frame.
@@ -219,54 +218,7 @@ function buildEnvironmentSection() {
   return sec;
 }
 
-// ---- Electrical (Victron) --------------------------------------------------
-function buildElectricalSection() {
-  const { sec, body } = section('Electrical · Victron', 'elec');
-
-  // Battery SOC with a level bar
-  const socRow = document.createElement('div');
-  socRow.className = 'battery-row';
-  const socLabel = document.createElement('div');
-  socLabel.className = 'battery-soc';
-  socLabel.textContent = '--%';
-  const bar = createLevelBar();
-  socRow.appendChild(socLabel);
-  socRow.appendChild(bar.el);
-  body.appendChild(socRow);
-  renderers.push(() => {
-    const soc = U.ratioToPercent(store.get('electrical.batteries.house.stateOfCharge'));
-    socLabel.textContent = soc == null ? '--%' : Math.round(soc) + '%';
-    const tone = soc == null ? null : (soc < 20 ? 'crit' : soc < 50 ? 'warn' : 'good');
-    bar.update(soc, tone);
-  });
-
-  const grid = document.createElement('div');
-  grid.className = 'tile-grid';
-  body.appendChild(grid);
-
-  tile(grid, 'Battery Voltage', () => {
-    const v = store.get('electrical.batteries.house.voltage');
-    return { text: U.fmt(v, 2), unit: 'V' };
-  }, ['electrical.batteries.house.voltage']);
-
-  tile(grid, 'Battery Current', () => {
-    const a = store.get('electrical.batteries.house.current');
-    const tone = a != null && a < -25 ? 'warn' : null;
-    return { text: U.fmt(a, 1), unit: 'A', tone };
-  }, ['electrical.batteries.house.current']);
-
-  tile(grid, 'Solar (PV)', () => {
-    const w = store.get('electrical.solar.pv.panelPower');
-    return { text: U.fmt(w, 0), unit: 'W' };
-  }, ['electrical.solar.pv.panelPower']);
-
-  tile(grid, 'AC Load', () => {
-    const w = store.get('electrical.ac.consumption.power');
-    return { text: U.fmt(w, 0), unit: 'W' };
-  }, ['electrical.ac.consumption.power']);
-
-  return sec;
-}
+// The Electrical panel now lives on its own Electrical tab (see js/electrical.js).
 
 // ---- Tanks -----------------------------------------------------------------
 function buildTankSection() {
