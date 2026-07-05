@@ -49,14 +49,24 @@
   <main id="dashboard" class="dashboard view"><!-- built by dashboard.js --></main>
 
   <section id="weather-view" class="view" hidden>
-    <div id="weather-map" class="weather-map"></div>
-    <div class="weather-controls">
-      <button id="wx-play" class="wx-btn" title="Play / pause">⏸</button>
-      <input id="wx-slider" class="wx-slider" type="range" min="0" max="0" value="0" />
-      <span id="wx-time" class="wx-time">--:--</span>
-      <button id="wx-recenter" class="wx-btn" title="Center on boat">⌖ Boat</button>
-      <span id="wx-status" class="wx-status"></span>
+    <div class="weather-map-wrap">
+      <div id="weather-map" class="weather-map"></div>
+      <div class="weather-controls">
+        <button id="wx-play" class="wx-btn" title="Play / pause">⏸</button>
+        <input id="wx-slider" class="wx-slider" type="range" min="0" max="0" value="0" />
+        <span id="wx-time" class="wx-time">--:--</span>
+        <button id="wx-recenter" class="wx-btn" title="Center on boat">⌖ Boat</button>
+        <span id="wx-status" class="wx-status"></span>
+      </div>
     </div>
+    <aside class="weather-forecast">
+      <div id="wx-fc-place" class="wx-fc-place"></div>
+      <h3 class="wx-fc-title">Today's Forecast</h3>
+      <div id="wx-today" class="wx-today"></div>
+      <h3 class="wx-fc-title">Extended Forecast</h3>
+      <div id="wx-extended" class="wx-extended"></div>
+      <div id="wx-fc-source" class="wx-fc-source"></div>
+    </aside>
   </section>
 
   <section id="cameras-view" class="view" hidden>

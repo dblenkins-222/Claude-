@@ -50,7 +50,7 @@ all hardware plumbing lives on the server side.
 - Environment: water and air temperature
 - Electrical (Victron): battery state of charge, voltage, current, solar (PV), AC load
 - Tanks: fuel, fresh water, black water with low/high level warnings
-- **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay
+- **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay — plus a **Today's Forecast** panel (min/max temp, wind, rain, humidity, UV, sunrise/sunset) and a **7-day extended forecast**
 - **Cameras tab**: up to 4 IP camera streams in an adaptive grid with tap-to-expand (MJPEG, JPEG snapshot, HLS, and plain video)
 - Demo mode with realistic simulated data (including AIS traffic and engine data)
 - Day / night themes and configurable units (knots/kmh, °C/°F, m/ft)
@@ -82,8 +82,23 @@ External data sources — thank you to these free providers:
 
 - Map library: [Leaflet](https://leafletjs.com)
 - Base map tiles: OpenStreetMap contributors & [CARTO](https://carto.com/)
-- Precipitation radar: [RainViewer](https://www.rainviewer.com) public API (no key required)
+- Precipitation radar: [RainViewer](https://www.rainviewer.com) public API (no key required), which aggregates national radar **including Australia's Bureau of Meteorology (BOM)**
 - Nautical seamarks: [OpenSeaMap](https://www.openseamap.org)
+- Forecast: [Open-Meteo](https://open-meteo.com) (no key required)
+
+**Today's Forecast & 7-day extended forecast.** The forecast panel (right of the
+map, or below it on narrow screens) shows current conditions, today's high/low,
+wind and gusts, rainfall and chance of rain, humidity, UV index, and
+sunrise/sunset, followed by a 7-day outlook. It **prefers the Australian BOM
+ACCESS-G model** (`/v1/bom`) for the location and automatically falls back to
+Open-Meteo's best available model when ACCESS-G has no data — the source in use
+is shown at the bottom of the panel.
+
+**A note on Australian radar:** BOM does not publish a public, browser-embeddable
+(CORS-enabled) map-tile service — its radar is delivered as per-site loop images.
+RainViewer already aggregates BOM radar for Australian coverage, so the radar
+layer shows Australian radar when you're in range, without needing to scrape BOM
+directly.
 
 ### Cameras
 

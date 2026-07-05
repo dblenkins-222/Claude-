@@ -398,13 +398,81 @@ legend { padding: 0 8px; color: var(--text-dim); font-size: 13px; text-transform
    so force hidden views off explicitly. */
 .view[hidden] { display: none !important; }
 
-/* ---- Weather radar ---- */
+/* ---- Weather radar + forecast ---- */
 #weather-view {
-  position: relative;
+  display: flex;
   height: calc(100dvh - 128px);
   min-height: 380px;
 }
+.weather-map-wrap { position: relative; flex: 1; min-width: 0; }
 .weather-map { position: absolute; inset: 0; background: var(--bg); }
+
+.weather-forecast {
+  width: 330px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: var(--panel);
+  border-left: 1px solid var(--ring);
+  padding: 14px 16px;
+}
+.wx-fc-place { font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.wx-fc-title {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+.wx-fc-empty { color: var(--text-dim); font-size: 14px; }
+
+.wx-now { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.wx-now-emoji { font-size: 34px; line-height: 1; }
+.wx-now-temp { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wx-now-desc { font-size: 14px; color: var(--text-dim); }
+
+.wx-fc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wx-fc-cell {
+  background: var(--panel-2);
+  border: 1px solid var(--ring);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wx-fc-cell-v { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wx-fc-cell-l { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.wx-extended { display: flex; flex-direction: column; gap: 4px; }
+.wx-day {
+  display: grid;
+  grid-template-columns: 3.5em 1.6em 3em 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--ring);
+  border-radius: 10px;
+  font-size: 14px;
+}
+.wx-day-name { color: var(--text-dim); font-weight: 600; }
+.wx-day-emoji { font-size: 18px; text-align: center; }
+.wx-day-pop { color: var(--accent); font-size: 12px; font-variant-numeric: tabular-nums; }
+.wx-day-temps { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.wx-day-temps b { color: var(--text); }
+
+.wx-fc-source { margin-top: 12px; font-size: 11px; color: var(--text-dim); }
+
+@media (max-width: 900px) {
+  #weather-view { flex-direction: column; }
+  .weather-map-wrap { flex: 1 1 55%; min-height: 300px; }
+  .weather-forecast {
+    width: auto;
+    flex: 1 1 45%;
+    border-left: none;
+    border-top: 1px solid var(--ring);
+  }
+}
 
 .weather-controls {
   position: absolute;
