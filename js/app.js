@@ -10,6 +10,7 @@ import { startAnchorWatch, onAnchorChange, acknowledgeAlarm } from './anchor.js'
 import { initWeather, onWeatherShown } from './weather.js';
 import { initCameras, onCamerasShown, onCamerasHidden, rebuildCameras } from './camera.js';
 import { initElectrical, onElectricalShown, rebuildElectrical } from './electrical.js';
+import { initTides, onTidesShown } from './tides.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -179,6 +180,11 @@ function initTabs() {
       view: el('weather-view'),
       // Lazy-init the map on first view (Leaflet needs a visible container).
       onShow: () => { initWeather(); onWeatherShown(); },
+    },
+    tides: {
+      btn: el('tab-tides'),
+      view: el('tides-view'),
+      onShow: () => { initTides(); onTidesShown(); },
     },
     cameras: {
       btn: el('tab-cameras'),

@@ -51,6 +51,7 @@ all hardware plumbing lives on the server side.
 - Electrical (Victron): battery state of charge, voltage, current, solar (PV), AC load
 - Tanks: fuel, fresh water, black water with low/high level warnings
 - **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay — plus a **Today's Forecast** panel (min/max temp, wind, rain, humidity, UV, sunrise/sunset) and a **7-day extended forecast**
+- **Tides tab**: a tide graph for the vessel's position (current height, next high/low, and a smooth 3-day curve with high/low markers and a "now" indicator), built for Australian waters
 - **Cameras tab**: up to 4 IP camera streams in an adaptive grid with tap-to-expand (MJPEG, JPEG snapshot, HLS, and plain video)
 - Demo mode with realistic simulated data (including AIS traffic and engine data)
 - Day / night themes and configurable units (knots/kmh, °C/°F, m/ft)
@@ -139,6 +140,17 @@ simulated genset. In **live mode** it sends a Signal K `PUT` to
 depends on your Signal K server having a PUT handler wired to the Cerbo GX /
 generator relay (e.g. via a plugin or Node-RED flow). If the server doesn't
 support it, the button reports the failure rather than doing anything unsafe.
+
+### Tides
+
+The **Tides** tab plots the tidal curve (sea level relative to mean sea level)
+for the vessel's position, with the current height, the next high and low tides,
+and a smooth 3-day graph marking each high/low and a "now" line. It's intended
+for **Australian waters** and uses the free [Open-Meteo Marine API](https://open-meteo.com)
+(`sea_level_height_msl`, no key required, global coverage). Heights follow your
+depth-unit setting (m/ft). When the vessel is inland (e.g. in demo mode) there is
+no tide, so the graph falls back to a coastal location (Sydney Harbour) with a
+note.
 
 ### Connecting to live data
 

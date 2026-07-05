@@ -43,6 +43,7 @@
     <button id="tab-dashboard" class="tab active">Dashboard</button>
     <button id="tab-electrical" class="tab">Electrical</button>
     <button id="tab-weather" class="tab">Weather Radar</button>
+    <button id="tab-tides" class="tab">Tides</button>
     <button id="tab-cameras" class="tab">Cameras</button>
   </nav>
 
@@ -75,6 +76,18 @@
 
   <section id="electrical-view" class="view" hidden>
     <div id="electrical-content" class="elec-grid"><!-- built by electrical.js --></div>
+  </section>
+
+  <section id="tides-view" class="view" hidden>
+    <div class="tide-info">
+      <div id="tide-current" class="tide-card"></div>
+      <div id="tide-next-high" class="tide-card"></div>
+      <div id="tide-next-low" class="tide-card"></div>
+    </div>
+    <div id="tide-note" class="tide-note"></div>
+    <div id="tide-graph-wrap" class="tide-graph-wrap">
+      <svg id="tide-graph" class="tide-graph"></svg>
+    </div>
   </section>
 
   <!-- Settings modal -->
