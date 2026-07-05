@@ -29,6 +29,9 @@ export function buildDashboard(root) {
   root.appendChild(buildAnchorSection());
   root.appendChild(buildEnvironmentSection());
   root.appendChild(buildElectricalSection());
+  if (settings.generator && settings.generator.id) {
+    root.appendChild(buildGeneratorSection(settings.generator));
+  }
   root.appendChild(buildTankSection());
 
   // Re-render on any store change, throttled to one paint per frame.
@@ -521,6 +524,116 @@ function buildAnchorSection() {
 
   onAnchorChange(render);
   render(getAnchorStatus());
+
+  return sec;
+}
+
+
+// ---- Generator (Onan) ------------------------------------------------------
+function buildGeneratorSection(gen) {
+  const { sec, body } = section(gen.label || 'Generator', 'generator');
+  const gid = gen.id;
+  const G = (suffix) => `electrical.generators.${gid}.${suffix}`;
+
+  // True when the genset is producing — from an explicit state value if
+  // present, otherwise inferred from revolutions / output frequency.
+  const isRunning = () => {
+    const state = store.get(G('state'));
+    if (typeof state === 'string') return /run|on|start/i.test(state);
+    if (typeof state === 'boolean') return state;
+    const rev = store.get(G('revolutions'));
+    if (rev != null) return rev > 1;
+    const freq = store.get(G('frequency'));
+    return freq != null && freq > 1;
+  };
+
+  // Status pill + runtime
+  const header = document.createElement('div');
+  header.className = 'gen-header';
+  const pill = document.createElement('span');
+  pill.className = 'gen-pill';
+  const runtime = document.createElement('div');
+  runtime.className = 'gen-runtime';
+  header.appendChild(pill);
+  header.appendChild(runtime);
+  body.appendChild(header);
+  renderers.push(() => {
+    const running = isRunning();
+    pill.textContent = running ? 'RUNNING' : 'STOPPED';
+    pill.className = 'gen-pill ' + (running ? 'running' : 'stopped');
+    const hrs = U.secondsToHours(store.get(G('runTime')));
+    runtime.innerHTML = hrs == null ? ''
+      : `<span class="v">${U.fmt(hrs, 1)}</span><span class="l">hrs total</span>`;
+  });
+
+  // Load bar
+  const loadRow = document.createElement('div');
+  loadRow.className = 'gen-load-row';
+  const loadLabel = document.createElement('div');
+  loadLabel.className = 'gen-load-label';
+  loadLabel.textContent = 'Load';
+  const loadPct = document.createElement('div');
+  loadPct.className = 'gen-load-pct';
+  loadPct.textContent = '--%';
+  const bar = createLevelBar();
+  loadRow.appendChild(loadLabel);
+  loadRow.appendChild(bar.el);
+  loadRow.appendChild(loadPct);
+  body.appendChild(loadRow);
+  renderers.push(() => {
+    const pct = U.ratioToPercent(store.get(G('load')));
+    loadPct.textContent = pct == null ? '--%' : Math.round(pct) + '%';
+    const tone = pct == null ? null : (pct > 95 ? 'crit' : pct > 85 ? 'warn' : 'good');
+    bar.update(pct, tone);
+  });
+
+  const grid = document.createElement('div');
+  grid.className = 'tile-grid';
+  body.appendChild(grid);
+
+  tile(grid, 'Output Power', () => {
+    const kw = U.wToKw(store.get(G('power')));
+    return { text: U.fmt(kw, 1), unit: 'kW' };
+  }, [G('power')]);
+
+  tile(grid, 'AC Voltage', () => {
+    const v = store.get(G('voltage'));
+    let tone = null;
+    if (isRunning() && v != null) {
+      const dev = Math.abs(v - gen.nominalVoltage) / gen.nominalVoltage;
+      tone = dev > 0.15 ? 'crit' : dev > 0.08 ? 'warn' : null;
+    }
+    return { text: U.fmt(v, 0), unit: 'V', tone };
+  }, [G('voltage')]);
+
+  tile(grid, 'Frequency', () => {
+    const f = store.get(G('frequency'));
+    let tone = null;
+    if (isRunning() && f != null) {
+      const dev = Math.abs(f - gen.nominalFrequency);
+      tone = dev > 3 ? 'crit' : dev > 1.5 ? 'warn' : null;
+    }
+    return { text: U.fmt(f, 1), unit: 'Hz', tone };
+  }, [G('frequency')]);
+
+  tile(grid, 'Coolant Temp', () => {
+    const k = store.get(G('temperature'));
+    const c = U.kelvinToCelsius(k);
+    const v = settings.tempUnit === 'F' ? U.kelvinToFahrenheit(k) : c;
+    const tone = isRunning() && c != null ? (c > 100 ? 'crit' : c > 95 ? 'warn' : null) : null;
+    return { text: U.fmt(v, 0), unit: '°' + settings.tempUnit, tone };
+  }, [G('temperature')]);
+
+  tile(grid, 'Oil Pressure', () => {
+    const bar = U.paToBar(store.get(G('oilPressure')));
+    const tone = isRunning() && bar != null ? (bar < 1.0 ? 'crit' : bar < 1.5 ? 'warn' : null) : null;
+    return { text: U.fmt(bar, 1), unit: 'bar', tone };
+  }, [G('oilPressure')]);
+
+  tile(grid, 'RPM', () => {
+    const rpm = U.hzToRpm(store.get(G('revolutions')));
+    return { text: rpm == null ? '--' : Math.round(rpm), unit: 'rpm' };
+  }, [G('revolutions')]);
 
   return sec;
 }

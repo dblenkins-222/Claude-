@@ -49,6 +49,15 @@ function ensureEngine(id, seed = 0) {
   return engineSim[id];
 }
 
+// Generator simulation state.
+const genSim = {
+  runTimeS: 1284.6 * 3600,   // total hours -> seconds
+  load: 0.42,                // ratio
+  temp: 361.15,              // K (~88 °C)
+  oil: 300000,               // Pa (~3 bar)
+  capacityW: 8000,           // 8 kW genset
+};
+
 // A few AIS targets, positioned relative to own vessel and drifting about.
 const aisTargets = [
   { ctx: 'vessels.urn:mrn:imo:mmsi:316001234', name: 'PACIFIC VOYAGER', type: 70, dLat: 0.012, dLon: 0.008, sog: 5.1, cog: 3.4 },
@@ -131,6 +140,31 @@ function tick() {
     set(`propulsion.${engine.id}.oilPressure`, e.oil);
     set(`propulsion.${engine.id}.engineLoad`, e.load);
   });
+
+  // Generator — simulate a running genset.
+  const gen = settings.generator;
+  if (gen && gen.id) {
+    genSim.load = wander(genSim.load, 0.06, 0.15, 1.0);
+    genSim.temp = wander(genSim.temp, 0.4, 350, 372);
+    genSim.oil = wander(genSim.oil, 6000, 220000, 380000);
+    genSim.runTimeS += 1;
+    const voltage = gen.nominalVoltage + (Math.random() - 0.5) * 3;
+    const frequency = gen.nominalFrequency + (Math.random() - 0.5) * 0.3;
+    // 60 Hz gensets spin ~1800 rpm (30 Hz); 50 Hz ~1500 rpm (25 Hz).
+    const rpmHz = (gen.nominalFrequency === 50 ? 25 : 30) + (Math.random() - 0.5) * 0.4;
+    const power = genSim.load * genSim.capacityW;
+    const g = (suffix, value) => set(`electrical.generators.${gen.id}.${suffix}`, value);
+    g('state', 'running');
+    g('revolutions', rpmHz);
+    g('runTime', genSim.runTimeS);
+    g('temperature', genSim.temp);
+    g('oilPressure', genSim.oil);
+    g('voltage', voltage);
+    g('frequency', frequency);
+    g('power', power);
+    g('current', power / voltage);
+    g('load', genSim.load);
+  }
 
   // AIS targets drift around, offset from our own position.
   for (const t of aisTargets) {

@@ -7,6 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Boat Monitor</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -38,7 +39,28 @@
     <button id="alarm-ack" class="alarm-banner-btn">Silence</button>
   </div>
 
-  <main id="dashboard" class="dashboard"><!-- built by dashboard.js --></main>
+  <nav class="tabbar">
+    <button id="tab-dashboard" class="tab active">Dashboard</button>
+    <button id="tab-weather" class="tab">Weather Radar</button>
+    <button id="tab-cameras" class="tab">Cameras</button>
+  </nav>
+
+  <main id="dashboard" class="dashboard view"><!-- built by dashboard.js --></main>
+
+  <section id="weather-view" class="view" hidden>
+    <div id="weather-map" class="weather-map"></div>
+    <div class="weather-controls">
+      <button id="wx-play" class="wx-btn" title="Play / pause">⏸</button>
+      <input id="wx-slider" class="wx-slider" type="range" min="0" max="0" value="0" />
+      <span id="wx-time" class="wx-time">--:--</span>
+      <button id="wx-recenter" class="wx-btn" title="Center on boat">⌖ Boat</button>
+      <span id="wx-status" class="wx-status"></span>
+    </div>
+  </section>
+
+  <section id="cameras-view" class="view" hidden>
+    <div id="camera-grid" class="cam-grid"><!-- built by camera.js --></div>
+  </section>
 
   <!-- Settings modal -->
   <div id="settings-modal" class="modal">
@@ -107,6 +129,64 @@
         </p>
       </fieldset>
 
+      <fieldset>
+        <legend>Generator</legend>
+        <label>Name
+          <input id="gen-label" type="text" placeholder="e.g. Onan Generator" />
+        </label>
+        <label>Signal K id
+          <input id="gen-id" type="text" placeholder="e.g. onan" />
+        </label>
+        <label>Nominal voltage (V)
+          <input id="gen-voltage" type="number" placeholder="120" />
+        </label>
+        <label>Nominal frequency
+          <select id="gen-frequency">
+            <option value="60">60 Hz</option>
+            <option value="50">50 Hz</option>
+          </select>
+        </label>
+        <p class="hint">
+          Reads <code>electrical.generators.&lt;id&gt;.*</code>. Nominal voltage
+          and frequency set the out-of-range warning bands. Leave the id blank to
+          hide the generator panel.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Cameras (up to 4)</legend>
+        <div class="cam-config" id="cam-config">
+          <div class="cam-config-row">
+            <input id="cam1-name" type="text" placeholder="Camera 1 name" />
+            <input id="cam1-url" type="text" placeholder="Stream URL (mjpeg / .m3u8 / snapshot)" />
+            <select id="cam1-type" aria-label="Camera 1 type"></select>
+          </div>
+          <div class="cam-config-row">
+            <input id="cam2-name" type="text" placeholder="Camera 2 name" />
+            <input id="cam2-url" type="text" placeholder="Stream URL" />
+            <select id="cam2-type" aria-label="Camera 2 type"></select>
+          </div>
+          <div class="cam-config-row">
+            <input id="cam3-name" type="text" placeholder="Camera 3 name" />
+            <input id="cam3-url" type="text" placeholder="Stream URL" />
+            <select id="cam3-type" aria-label="Camera 3 type"></select>
+          </div>
+          <div class="cam-config-row">
+            <input id="cam4-name" type="text" placeholder="Camera 4 name" />
+            <input id="cam4-url" type="text" placeholder="Stream URL" />
+            <select id="cam4-type" aria-label="Camera 4 type"></select>
+          </div>
+        </div>
+        <p class="hint">
+          Browsers can play <strong>MJPEG</strong>, <strong>JPEG snapshot</strong>,
+          <strong>HLS</strong> (<code>.m3u8</code>) and plain <strong>video</strong>
+          directly. <strong>RTSP</strong> is not playable in a browser — route it
+          through a gateway (go2rtc / MediaMTX / Frigate) that outputs HLS or MJPEG.
+          Leave a URL blank to hide that camera; use <em>Auto</em> to detect the
+          type from the URL.
+        </p>
+      </fieldset>
+
       <div class="modal-actions">
         <button id="settings-cancel" class="btn ghost">Cancel</button>
         <button id="settings-save" class="btn primary">Save</button>
@@ -114,6 +194,7 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
