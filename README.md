@@ -39,10 +39,12 @@ all hardware plumbing lives on the server side.
 > Both connect to your NMEA 2000 network and Victron Cerbo GX. See the top of
 > the Cerbo guide for a side-by-side comparison to help you choose.
 
-> **Wiring it up?** See [docs/wiring-diagram.md](docs/wiring-diagram.md) for a
-> system + NMEA 2000 backbone diagram (twin CAT C9s via J1939 gateways, Onan
-> generator, dual Victron SmartShunts, MPPT, inverter-charger, cameras) and a
-> connection reference mapping each device to its app panel.
+> **Wiring it up?** See [docs/wiring-diagram.md](docs/wiring-diagram.md) for the
+> system + NMEA 2000 diagrams, **AC/DC power one-line diagrams**, a
+> **connection reference** (each device → its app panel), and a **bill of
+> materials** — tailored to this vessel (twin CAT C9s + Twin Disc via J1939
+> gateways, Onan genset, Simrad NSS evo3 / AP44 / IS42 / RS100-B AIS, Muir
+> windlass, Fusion, Cerbo GX, dual SmartShunts, Centaur charger, cameras).
 
 ## Features
 
