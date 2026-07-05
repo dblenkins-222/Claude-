@@ -15,8 +15,8 @@ const sim = {
   heading: 1.9,        // rad (~109°)
   cog: 1.95,           // rad
   depth: 8.4,          // m
-  lat: 43.6532,        // Toronto-ish
-  lon: -79.3832,
+  lat: -27.8520,       // The Boat Works, Coomera QLD 4209, Australia
+  lon: 153.3360,
   windSpeedApp: 6.0,   // m/s
   windAngleApp: 0.6,   // rad (starboard)
   windSpeedTrue: 7.5,  // m/s
@@ -87,8 +87,8 @@ function tick() {
   sim.heading = wander(sim.heading, 0.04, 0, Math.PI * 2);
   sim.cog = sim.heading + (Math.random() - 0.5) * 0.1;
   sim.depth = wander(sim.depth, 0.6, 1.5, 40);
-  sim.lat = wander(sim.lat, 0.0002, 43.0, 44.0);
-  sim.lon = wander(sim.lon, 0.0002, -80.0, -79.0);
+  sim.lat = wander(sim.lat, 0.0002, -28.05, -27.70);
+  sim.lon = wander(sim.lon, 0.0002, 153.25, 153.50);
   sim.windSpeedApp = wander(sim.windSpeedApp, 0.5, 0, 20);
   sim.windAngleApp = wander(sim.windAngleApp, 0.08, -Math.PI, Math.PI);
   sim.windSpeedTrue = wander(sim.windSpeedTrue, 0.5, 0, 22);

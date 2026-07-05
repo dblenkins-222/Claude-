@@ -148,9 +148,9 @@ for the vessel's position, with the current height, the next high and low tides,
 and a smooth 3-day graph marking each high/low and a "now" line. It's intended
 for **Australian waters** and uses the free [Open-Meteo Marine API](https://open-meteo.com)
 (`sea_level_height_msl`, no key required, global coverage). Heights follow your
-depth-unit setting (m/ft). When the vessel is inland (e.g. in demo mode) there is
-no tide, so the graph falls back to a coastal location (Sydney Harbour) with a
-note.
+depth-unit setting (m/ft). The demo location is **The Boat Works, Coomera QLD
+4209** (on the tidal Coomera River), so the demo shows real Coomera tides. If a
+vessel is ever inland with no tide, the graph falls back to Coomera with a note.
 
 ### Connecting to live data
 

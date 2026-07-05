@@ -13,7 +13,7 @@ import * as U from './units.js';
 
 const MARINE_API = 'https://marine-api.open-meteo.com/v1/marine';
 const REFRESH_MS = 30 * 60 * 1000;
-const FALLBACK = { lat: -33.85, lon: 151.25, name: 'Sydney Harbour' };
+const FALLBACK = { lat: -27.8520, lon: 153.3360, name: 'The Boat Works, Coomera' };
 const NS = 'http://www.w3.org/2000/svg';
 
 let initialized = false;

@@ -30,8 +30,8 @@ const REFRESH_MS = 5 * 60 * 1000; // re-fetch radar frames every 5 min
 const FORECAST_REFRESH_MS = 15 * 60 * 1000; // re-fetch forecast every 15 min
 const OM_FORECAST = 'https://api.open-meteo.com/v1/forecast';
 const OM_BOM = 'https://api.open-meteo.com/v1/bom'; // Australian BOM ACCESS-G model
-const DEFAULT_CENTER = [43.6532, -79.3832];
-const DEFAULT_ZOOM = 8;
+const DEFAULT_CENTER = [-27.8520, 153.3360]; // The Boat Works, Coomera QLD, Australia
+const DEFAULT_ZOOM = 10;
 let lastForecastCenter = null;
 
 let map = null;
