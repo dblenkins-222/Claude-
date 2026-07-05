@@ -43,7 +43,7 @@ all hardware plumbing lives on the server side.
 
 - Navigation: speed (SOG), heading with live compass, course (COG), depth, GPS position
 - Engine: RPM tachometer gauge, engine temperature, oil pressure, engine load (with red-line / over-temp / low-oil warnings)
-- Generator (Onan): run status, output power/voltage/frequency, load, coolant temp, oil pressure, RPM, and total runtime hours (with out-of-range and over-temp/low-oil warnings)
+- **Electrical tab**: a dedicated power page with the house battery / Victron **SmartShunt**, **12 VDC loads** (calculated from the SmartShunt), **240 VAC loads**, and the **Onan generator** (run status, output power/voltage/frequency, load, coolant temp, oil pressure, RPM, runtime hours) — including a **generator Start / Stop button**
 - Wind: apparent wind dial plus apparent/true speed and angle
 - **AIS targets**: north-up radar plot of nearby vessels plus a ranged list (name, distance, bearing, speed); close contacts are highlighted
 - **Anchor watch**: drop/weigh anchor, adjustable alarm radius, live drift distance and bearing, with an audible + full-screen visual **drag alarm**
@@ -105,6 +105,23 @@ native capabilities:
 with no cameras configured, a public test HLS stream is shown so you can confirm
 the tab works.
 
+### Electrical
+
+The **Electrical** tab consolidates the boat's power systems:
+
+- **House battery / SmartShunt** — state of charge, voltage, current, power, and time-remaining (`electrical.batteries.<shunt>.*`)
+- **12 VDC loads** — calculated from the SmartShunt as *bus voltage × discharge current*. Configure the shunt battery id, DC nominal voltage, and the discharge-current sign convention in **⚙ Settings → Electrical**.
+- **240 VAC loads** — from `electrical.ac.consumption.*` (power, voltage, current)
+- **Onan generator** — the full generator panel, moved here from the dashboard
+
+**Generator Start / Stop button:** starting an engine remotely is safety-critical,
+so the button asks for confirmation. In **demo mode** it simply toggles the
+simulated genset. In **live mode** it sends a Signal K `PUT` to
+`electrical/generators/<id>/state` — whether that actually starts the genset
+depends on your Signal K server having a PUT handler wired to the Cerbo GX /
+generator relay (e.g. via a plugin or Node-RED flow). If the server doesn't
+support it, the button reports the failure rather than doing anything unsafe.
+
 ### Connecting to live data
 
 1. Open **Settings** (gear icon).
@@ -134,9 +151,10 @@ The **Demo** button switches back to simulated data at any time.
 | Generator load     | `electrical.generators.<id>.load`              |
 | Generator engine   | `electrical.generators.<id>.revolutions` / `temperature` / `oilPressure` |
 | Generator runtime  | `electrical.generators.<id>.runTime` (s → hrs) |
-| Battery            | `electrical.batteries.house.*`                 |
+| Battery / SmartShunt | `electrical.batteries.<shunt>.voltage` / `current` / `stateOfCharge` / `power` / `capacity.timeRemaining` |
+| 12 VDC loads       | derived: bus voltage × discharge current (from the SmartShunt) |
 | Solar              | `electrical.solar.pv.panelPower`               |
-| AC load            | `electrical.ac.consumption.power`              |
+| 240 VAC loads      | `electrical.ac.consumption.power` / `voltage` / `current` |
 | Tanks              | `tanks.fuel.main` / `tanks.freshWater.main` / `tanks.blackWater.main` |
 | AIS targets        | `vessels.*` (position, SOG, COG, name, MMSI)   |
 
@@ -154,7 +172,12 @@ id, and nominal voltage/frequency). It ships as **Onan Generator**
 out-of-range warnings; set 230 V / 50 Hz for European systems, or clear the id
 to hide the panel. Runtime detects "running" from an explicit `state` value if
 your gateway provides one, otherwise from engine revolutions or output
-frequency.
+frequency. The generator panel (and its **Start / Stop** button) now lives on
+the **Electrical** tab.
+
+The **12 VDC / 240 VAC** systems are configurable in **Settings → Electrical**:
+the SmartShunt battery id, DC nominal voltage, whether the shunt reports
+discharge as negative current, and the AC nominal voltage (240 V by default).
 
 ### AIS & the anchor watch
 

@@ -41,6 +41,7 @@
 
   <nav class="tabbar">
     <button id="tab-dashboard" class="tab active">Dashboard</button>
+    <button id="tab-electrical" class="tab">Electrical</button>
     <button id="tab-weather" class="tab">Weather Radar</button>
     <button id="tab-cameras" class="tab">Cameras</button>
   </nav>
@@ -60,6 +61,10 @@
 
   <section id="cameras-view" class="view" hidden>
     <div id="camera-grid" class="cam-grid"><!-- built by camera.js --></div>
+  </section>
+
+  <section id="electrical-view" class="view" hidden>
+    <div id="electrical-content" class="elec-grid"><!-- built by electrical.js --></div>
   </section>
 
   <!-- Settings modal -->
@@ -150,6 +155,28 @@
           Reads <code>electrical.generators.&lt;id&gt;.*</code>. Nominal voltage
           and frequency set the out-of-range warning bands. Leave the id blank to
           hide the generator panel.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Electrical (12 VDC / 240 VAC)</legend>
+        <label>SmartShunt battery id
+          <input id="elec-shunt-id" type="text" placeholder="e.g. house" />
+        </label>
+        <label>DC nominal voltage (V)
+          <input id="elec-dc-voltage" type="number" placeholder="12" />
+        </label>
+        <label class="checkbox">
+          <input id="elec-discharge-neg" type="checkbox" /> SmartShunt reports discharge as negative current
+        </label>
+        <label>AC nominal voltage (V)
+          <input id="elec-ac-voltage" type="number" placeholder="240" />
+        </label>
+        <p class="hint">
+          12 VDC load is calculated from the SmartShunt
+          (<code>electrical.batteries.&lt;id&gt;.*</code>) as bus voltage ×
+          discharge current. 240 VAC loads read from
+          <code>electrical.ac.consumption.*</code>.
         </p>
       </fieldset>
 

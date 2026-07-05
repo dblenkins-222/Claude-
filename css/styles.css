@@ -538,3 +538,49 @@ legend { padding: 0 8px; color: var(--text-dim); font-size: 13px; text-transform
 @media (max-width: 560px) {
   .cam-config-row { grid-template-columns: 1fr; }
 }
+
+
+/* ---- Electrical tab ---- */
+#electrical-view {
+  height: calc(100dvh - 128px);
+  min-height: 380px;
+  overflow-y: auto;
+}
+.elec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--gap);
+  padding: var(--gap);
+  padding-bottom: max(var(--gap), env(safe-area-inset-bottom));
+}
+.elec-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+/* Generator Start / Stop control */
+.gen-controls { margin-top: 6px; }
+.gen-start-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  background: var(--ok);
+  color: #04140c;
+  border: 1px solid var(--ok);
+}
+.gen-start-btn.running { background: var(--crit); color: #1a0505; border-color: var(--crit); }
+.gen-start-btn:disabled { opacity: 0.5; cursor: default; }
+.gen-start-btn:active { transform: scale(0.99); }
+.gen-control-msg {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  text-align: center;
+  min-height: 14px;
+}

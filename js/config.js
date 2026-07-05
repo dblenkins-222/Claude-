@@ -38,6 +38,21 @@ const DEFAULTS = {
     nominalFrequency: 60,   // Hz (North America: 60; Europe: 50)
   },
 
+  // 12 VDC system, read from a Victron SmartShunt (a battery monitor). The
+  // SmartShunt appears as a battery in Signal K; DC load is derived from its
+  // voltage x discharge current. `dischargeNegative` matches the common Victron
+  // convention where a negative current means the battery is discharging.
+  dcSystem: {
+    shuntId: 'house',
+    nominalVoltage: 12,
+    dischargeNegative: true,
+  },
+
+  // 240 VAC system. AC loads read from electrical.ac.consumption.*
+  acSystem: {
+    nominalVoltage: 240,
+  },
+
   // Anchor watch. When set, the app alarms if the boat drifts beyond radius.
   anchor: {
     set: false,       // true once an anchor position is dropped

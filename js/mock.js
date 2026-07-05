@@ -5,6 +5,7 @@
 
 import { store } from './state.js';
 import { settings } from './config.js';
+import { getCommanded } from './gencontrol.js';
 
 let timer = null;
 
@@ -121,8 +122,19 @@ function tick() {
   set('electrical.batteries.house.voltage', sim.battVoltage);
   set('electrical.batteries.house.current', sim.battCurrent);
   set('electrical.batteries.house.power', sim.battVoltage * sim.battCurrent);
+  // Rough time-to-go when discharging (seconds): remaining Ah / discharge A.
+  if (sim.battCurrent < -0.1) {
+    const remainingAh = sim.battSoc * 400; // assume a 400 Ah bank
+    set('electrical.batteries.house.capacity.timeRemaining', (remainingAh / -sim.battCurrent) * 3600);
+  } else {
+    set('electrical.batteries.house.capacity.timeRemaining', null);
+  }
   set('electrical.solar.pv.panelPower', sim.solarPower);
+  // 240 VAC loads.
+  const acVoltage = (settings.acSystem?.nominalVoltage || 240) + (Math.random() - 0.5) * 4;
   set('electrical.ac.consumption.power', sim.acLoad);
+  set('electrical.ac.consumption.voltage', acVoltage);
+  set('electrical.ac.consumption.current', sim.acLoad / acVoltage);
 
   set('tanks.fuel.main.currentLevel', sim.fuel);
   set('tanks.freshWater.main.currentLevel', sim.freshWater);
@@ -141,29 +153,45 @@ function tick() {
     set(`propulsion.${engine.id}.engineLoad`, e.load);
   });
 
-  // Generator — simulate a running genset.
+  // Generator — running unless the Start/Stop button has commanded it off.
   const gen = settings.generator;
   if (gen && gen.id) {
-    genSim.load = wander(genSim.load, 0.06, 0.15, 1.0);
-    genSim.temp = wander(genSim.temp, 0.4, 350, 372);
-    genSim.oil = wander(genSim.oil, 6000, 220000, 380000);
-    genSim.runTimeS += 1;
-    const voltage = gen.nominalVoltage + (Math.random() - 0.5) * 3;
-    const frequency = gen.nominalFrequency + (Math.random() - 0.5) * 0.3;
-    // 60 Hz gensets spin ~1800 rpm (30 Hz); 50 Hz ~1500 rpm (25 Hz).
-    const rpmHz = (gen.nominalFrequency === 50 ? 25 : 30) + (Math.random() - 0.5) * 0.4;
-    const power = genSim.load * genSim.capacityW;
+    const running = getCommanded() !== false; // null/true => running
     const g = (suffix, value) => set(`electrical.generators.${gen.id}.${suffix}`, value);
-    g('state', 'running');
-    g('revolutions', rpmHz);
-    g('runTime', genSim.runTimeS);
-    g('temperature', genSim.temp);
-    g('oilPressure', genSim.oil);
-    g('voltage', voltage);
-    g('frequency', frequency);
-    g('power', power);
-    g('current', power / voltage);
-    g('load', genSim.load);
+    if (running) {
+      genSim.load = wander(genSim.load, 0.06, 0.15, 1.0);
+      genSim.temp = wander(genSim.temp, 0.4, 350, 372);
+      genSim.oil = wander(genSim.oil, 6000, 220000, 380000);
+      genSim.runTimeS += 1;
+      const voltage = gen.nominalVoltage + (Math.random() - 0.5) * 3;
+      const frequency = gen.nominalFrequency + (Math.random() - 0.5) * 0.3;
+      // 60 Hz gensets spin ~1800 rpm (30 Hz); 50 Hz ~1500 rpm (25 Hz).
+      const rpmHz = (gen.nominalFrequency === 50 ? 25 : 30) + (Math.random() - 0.5) * 0.4;
+      const power = genSim.load * genSim.capacityW;
+      g('state', 'running');
+      g('revolutions', rpmHz);
+      g('runTime', genSim.runTimeS);
+      g('temperature', genSim.temp);
+      g('oilPressure', genSim.oil);
+      g('voltage', voltage);
+      g('frequency', frequency);
+      g('power', power);
+      g('current', power / voltage);
+      g('load', genSim.load);
+    } else {
+      // Stopped: engine spun down, no output; coolant slowly cooling.
+      genSim.temp = wander(genSim.temp, 0.3, 300, genSim.temp);
+      g('state', 'stopped');
+      g('revolutions', 0);
+      g('runTime', genSim.runTimeS);
+      g('temperature', genSim.temp);
+      g('oilPressure', 0);
+      g('voltage', 0);
+      g('frequency', 0);
+      g('power', 0);
+      g('current', 0);
+      g('load', 0);
+    }
   }
 
   // AIS targets drift around, offset from our own position.

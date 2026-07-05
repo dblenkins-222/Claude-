@@ -9,6 +9,7 @@ import { buildDashboard } from './dashboard.js';
 import { startAnchorWatch, onAnchorChange, acknowledgeAlarm } from './anchor.js';
 import { initWeather, onWeatherShown } from './weather.js';
 import { initCameras, onCamerasShown, onCamerasHidden, rebuildCameras } from './camera.js';
+import { initElectrical, onElectricalShown, rebuildElectrical } from './electrical.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -91,6 +92,11 @@ function openSettings() {
   el('gen-id').value = gen.id || '';
   el('gen-voltage').value = gen.nominalVoltage ?? 120;
   el('gen-frequency').value = String(gen.nominalFrequency ?? 60);
+  const dc = settings.dcSystem || {};
+  el('elec-shunt-id').value = dc.shuntId || '';
+  el('elec-dc-voltage').value = dc.nominalVoltage ?? 12;
+  el('elec-discharge-neg').checked = dc.dischargeNegative !== false;
+  el('elec-ac-voltage').value = (settings.acSystem && settings.acSystem.nominalVoltage) ?? 240;
   const cams = settings.cameras || [];
   for (let i = 0; i < 4; i++) {
     const c = cams[i] || {};
@@ -125,6 +131,14 @@ function saveSettingsForm() {
     nominalFrequency: parseInt(el('gen-frequency').value, 10) || 60,
   };
   const genChanged = JSON.stringify(settings.generator) !== prevGen;
+  const prevElec = JSON.stringify([settings.dcSystem, settings.acSystem]);
+  settings.dcSystem = {
+    shuntId: el('elec-shunt-id').value.trim() || 'house',
+    nominalVoltage: parseFloat(el('elec-dc-voltage').value) || 12,
+    dischargeNegative: el('elec-discharge-neg').checked,
+  };
+  settings.acSystem = { nominalVoltage: parseFloat(el('elec-ac-voltage').value) || 240 };
+  const elecChanged = JSON.stringify([settings.dcSystem, settings.acSystem]) !== prevElec;
   const prevCams = JSON.stringify(settings.cameras);
   const cameras = [];
   for (let i = 1; i <= 4; i++) {
@@ -138,8 +152,9 @@ function saveSettingsForm() {
   const camsChanged = JSON.stringify(settings.cameras) !== prevCams;
   saveSettings();
   el('settings-modal').classList.remove('open');
-  // Rebuild if the engine or generator config changed so the panels reflect it.
-  if (enginesChanged || genChanged) buildDashboard(el('dashboard'));
+  // Rebuild affected views so the panels reflect the new config.
+  if (enginesChanged) buildDashboard(el('dashboard'));
+  if (genChanged || elecChanged) rebuildElectrical();
   if (camsChanged) rebuildCameras();
   // If we're live, reconnect with the new host.
   if (!settings.demoMode) goLive();
@@ -150,6 +165,11 @@ function saveSettingsForm() {
 function initTabs() {
   const tabs = {
     dashboard: { btn: el('tab-dashboard'), view: el('dashboard') },
+    electrical: {
+      btn: el('tab-electrical'),
+      view: el('electrical-view'),
+      onShow: () => { initElectrical(); onElectricalShown(); },
+    },
     weather: {
       btn: el('tab-weather'),
       view: el('weather-view'),
