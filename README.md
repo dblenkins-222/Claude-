@@ -60,7 +60,7 @@ all hardware plumbing lives on the server side.
 - **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay — plus a **Today's Forecast** panel (min/max temp, wind, rain, humidity, UV, sunrise/sunset) and a **7-day extended forecast**
 - **Tides tab**: a tide graph for the vessel's position (current height, next high/low, and a smooth 3-day curve with high/low markers and a "now" indicator), built for Australian waters
 - **Cameras tab**: up to 4 IP camera streams in an adaptive grid with tap-to-expand (MJPEG, JPEG snapshot, HLS, and plain video)
-- **Entertainment tab**: control the Fusion stereo over NMEA 2000 — source selection (AM / FM / Bluetooth / CD / AUX / DVD), now-playing info, play/pause, next/prev, mute and volume
+- **Entertainment tab**: control the Fusion stereo over NMEA 2000 — source selection (AM / FM / Bluetooth / CD / AUX / DVD), now-playing info, play/pause, next/prev, and **per-zone volume + mute** (Saloon / Cockpit / Flybridge…)
 - Demo mode with realistic simulated data (including AIS traffic and engine data)
 - Day / night themes and configurable units (knots/kmh, °C/°F, m/ft)
 - Stale-data indicators when a sensor stops updating
@@ -191,15 +191,17 @@ KB per refresh.
 ### Entertainment (Fusion stereo)
 
 The **Entertainment** tab controls the Fusion stereo over NMEA 2000. It shows the
-current **source**, now-playing track/station, play state and volume, and lets you
-switch between **AM, FM, Bluetooth, CD, AUX and DVD**, play/pause, skip, mute and
-adjust volume. In demo mode it's fully simulated.
+current **source**, now-playing track/station and play state (unit-wide), and lets
+you switch between **AM, FM, Bluetooth, CD, AUX and DVD**, play/pause and skip.
+**Volume and mute are per speaker zone** — each configured zone (e.g. Saloon,
+Cockpit, Flybridge) gets its own slider and mute. In demo mode it's fully simulated.
 
 For live control it uses the [`signalk-fusion-stereo`](https://www.npmjs.com/package/signalk-fusion-stereo)
-plugin on your Signal K server, which reads/writes `entertainment.device.<id>.*`.
-Set the **Fusion device id** and **output zone** in **⚙ Settings → Entertainment**
-to match that plugin's configuration. Exact source names/indexes vary by unit, so
-source switching may need to match your stereo's setup.
+plugin on your Signal K server, which reads/writes
+`entertainment.device.<id>.output.<zone>.*`. In **⚙ Settings → Entertainment**,
+set the **Fusion device id** and **name each speaker zone** you have (zone1–zone4;
+leave a zone blank to hide it). Exact source names/indexes vary by unit, so source
+switching may need to match your stereo's setup.
 
 ### Connecting to live data
 

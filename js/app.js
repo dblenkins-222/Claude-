@@ -11,7 +11,7 @@ import { initWeather, onWeatherShown, onWeatherHidden } from './weather.js';
 import { initCameras, onCamerasShown, onCamerasHidden, rebuildCameras } from './camera.js';
 import { initElectrical, onElectricalShown, rebuildElectrical } from './electrical.js';
 import { initTides, onTidesShown } from './tides.js';
-import { initEntertainment, onEntertainmentShown } from './entertainment.js';
+import { initEntertainment, onEntertainmentShown, rebuildEntertainment } from './entertainment.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -104,7 +104,12 @@ function openSettings() {
   el('elec-ac-voltage').value = (settings.acSystem && settings.acSystem.nominalVoltage) ?? 240;
   const fu = settings.fusion || {};
   el('fusion-id').value = fu.deviceId || '';
-  el('fusion-zone').value = fu.zone || '';
+  const fzones = Array.isArray(fu.zones) ? fu.zones : [];
+  const zoneLabel = (id) => (fzones.find((z) => z.id === id) || {}).label || '';
+  el('fusion-z1').value = zoneLabel('zone1');
+  el('fusion-z2').value = zoneLabel('zone2');
+  el('fusion-z3').value = zoneLabel('zone3');
+  el('fusion-z4').value = zoneLabel('zone4');
   const cams = settings.cameras || [];
   for (let i = 0; i < 4; i++) {
     const c = cams[i] || {};
@@ -161,10 +166,17 @@ function saveSettingsForm() {
   }
   settings.cameras = cameras;
   const camsChanged = JSON.stringify(settings.cameras) !== prevCams;
+  const prevFusion = JSON.stringify(settings.fusion);
   settings.fusion = {
     deviceId: el('fusion-id').value.trim() || 'fusion1',
-    zone: el('fusion-zone').value.trim() || 'zone1',
+    zones: [
+      { id: 'zone1', label: el('fusion-z1').value.trim() },
+      { id: 'zone2', label: el('fusion-z2').value.trim() },
+      { id: 'zone3', label: el('fusion-z3').value.trim() },
+      { id: 'zone4', label: el('fusion-z4').value.trim() },
+    ],
   };
+  const fusionChanged = JSON.stringify(settings.fusion) !== prevFusion;
   saveSettings();
   el('settings-modal').classList.remove('open');
   // Rebuild affected views so the panels reflect the new config.
@@ -173,7 +185,8 @@ function saveSettingsForm() {
   if (camsChanged) rebuildCameras();
   // Re-apply weather radar activity (e.g. data-saver just toggled) if viewing it.
   if (!el('weather-view').hidden) onWeatherShown();
-  if (!el('entertainment-view').hidden) onEntertainmentShown();
+  if (fusionChanged) rebuildEntertainment();
+  else if (!el('entertainment-view').hidden) onEntertainmentShown();
   // If we're live, reconnect with the new host.
   if (!settings.demoMode) goLive();
 }

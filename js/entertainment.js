@@ -1,17 +1,18 @@
 // Entertainment tab.
 // Controls the Fusion stereo over NMEA 2000 (via the signalk-fusion-stereo
-// plugin): shows the current source, now-playing info, play state and volume,
-// and lets you switch sources (AM / FM / Bluetooth / CD / AUX / DVD) and control
-// playback. Works with simulated data in demo mode.
+// plugin): current source, now-playing info and play state (unit-wide), plus
+// per-zone volume and mute for each speaker zone (Saloon / Cockpit / Flybridge…).
+// Works with simulated data in demo mode.
 
 import { store } from './state.js';
 import {
-  SOURCES, readFusion, onFusionChange,
+  SOURCES, getZones, readFusion, onFusionChange,
   setSource, setState, setVolume, toggleMute, nextTrack, prevTrack,
 } from './fusion.js';
 
 let built = false;
 let root = null;
+let zoneRefs = {};
 
 export function initEntertainment() {
   if (built) return;
@@ -31,6 +32,13 @@ export function initEntertainment() {
 
 export function onEntertainmentShown() { render(); }
 
+// Rebuild the zone rows when the Fusion config (zones) changes.
+export function rebuildEntertainment() {
+  if (!built) return;
+  buildZones();
+  render();
+}
+
 function el(id) { return root.querySelector('#' + id); }
 
 function buildUI() {
@@ -47,14 +55,10 @@ function buildUI() {
         '<button class="ent-btn" id="ent-prev" title="Previous">&#9198;</button>' +
         '<button class="ent-btn ent-play" id="ent-play" title="Play / pause">&#9654;</button>' +
         '<button class="ent-btn" id="ent-next" title="Next">&#9197;</button>' +
-        '<button class="ent-btn" id="ent-mute" title="Mute">&#128266;</button>' +
-      '</div>' +
-      '<div class="ent-volume">' +
-        '<span class="ent-vol-icon">&#128264;</span>' +
-        '<input type="range" id="ent-vol" min="0" max="100" value="0" class="ent-vol-slider" />' +
-        '<span class="ent-vol-val" id="ent-vol-val">--%</span>' +
       '</div>' +
       '<div class="ent-sources" id="ent-sources"></div>' +
+      '<div class="ent-zones-title">Zones</div>' +
+      '<div class="ent-zones" id="ent-zones"></div>' +
       '<div class="ent-note" id="ent-note"></div>' +
     '</div>';
 
@@ -71,11 +75,33 @@ function buildUI() {
   el('ent-play').addEventListener('click', () => setState(readFusion().state !== 'playing'));
   el('ent-prev').addEventListener('click', () => prevTrack());
   el('ent-next').addEventListener('click', () => nextTrack());
-  el('ent-mute').addEventListener('click', () => toggleMute());
 
-  const vol = el('ent-vol');
-  vol.addEventListener('input', () => { el('ent-vol-val').textContent = vol.value + '%'; });
-  vol.addEventListener('change', () => setVolume(parseInt(vol.value, 10) / 100));
+  buildZones();
+}
+
+function buildZones() {
+  const wrap = el('ent-zones');
+  wrap.innerHTML = '';
+  zoneRefs = {};
+  for (const z of getZones()) {
+    const row = document.createElement('div');
+    row.className = 'ent-zone';
+    row.innerHTML =
+      '<span class="ent-zone-name"></span>' +
+      '<button class="ent-zbtn" title="Mute">&#128266;</button>' +
+      '<input type="range" min="0" max="100" value="0" class="ent-zvol" />' +
+      '<span class="ent-zval">--%</span>';
+    const name = row.querySelector('.ent-zone-name');
+    const mute = row.querySelector('.ent-zbtn');
+    const slider = row.querySelector('.ent-zvol');
+    const val = row.querySelector('.ent-zval');
+    name.textContent = z.label;
+    mute.addEventListener('click', () => toggleMute(z.id));
+    slider.addEventListener('input', () => { val.textContent = slider.value + '%'; });
+    slider.addEventListener('change', () => setVolume(z.id, parseInt(slider.value, 10) / 100));
+    wrap.appendChild(row);
+    zoneRefs[z.id] = { name, mute, slider, val };
+  }
 }
 
 function resolveSource(name) {
@@ -94,7 +120,7 @@ function resolveSource(name) {
 function render() {
   if (!built) return;
   const s = readFusion();
-  const hasData = s.state != null || s.name != null || s.volume != null;
+  const hasData = s.state != null || s.name != null || s.zones.some((z) => z.volume != null);
   el('ent-note').textContent = hasData ? ''
     : 'No Fusion data. Connect the stereo on NMEA 2000 and install the signalk-fusion-stereo plugin (set the device id in Settings).';
 
@@ -108,12 +134,17 @@ function render() {
   el('ent-state').textContent = s.state ? (playing ? '\u25B6 Playing' : '\u23F8 Paused') : '';
   el('ent-play').innerHTML = playing ? '&#9208;' : '&#9654;';
 
-  const volPct = s.volume == null ? null : Math.round(s.volume * 100);
-  el('ent-vol-val').textContent = volPct == null ? '--%' : (s.muted ? 'Muted' : volPct + '%');
-  const vol = el('ent-vol');
-  if (document.activeElement !== vol && volPct != null) vol.value = String(volPct);
-  el('ent-mute').innerHTML = s.muted ? '&#128263;' : '&#128266;';
-
   root.querySelectorAll('.ent-source').forEach((b) =>
     b.classList.toggle('active', b.dataset.source === active));
+
+  for (const z of s.zones) {
+    const r = zoneRefs[z.id];
+    if (!r) continue;
+    r.name.textContent = z.label;
+    const pct = z.volume == null ? null : Math.round(z.volume * 100);
+    r.val.textContent = pct == null ? '--%' : (z.muted ? 'Muted' : pct + '%');
+    if (document.activeElement !== r.slider && pct != null) r.slider.value = String(pct);
+    r.mute.innerHTML = z.muted ? '&#128263;' : '&#128266;';
+    r.mute.classList.toggle('muted', !!z.muted);
+  }
 }

@@ -266,14 +266,23 @@
         <label>Fusion device id
           <input id="fusion-id" type="text" placeholder="e.g. fusion1" />
         </label>
-        <label>Output zone
-          <input id="fusion-zone" type="text" placeholder="e.g. zone1" />
+        <label>Zone 1 name (zone1)
+          <input id="fusion-z1" type="text" placeholder="e.g. Saloon" />
+        </label>
+        <label>Zone 2 name (zone2)
+          <input id="fusion-z2" type="text" placeholder="e.g. Cockpit" />
+        </label>
+        <label>Zone 3 name (zone3)
+          <input id="fusion-z3" type="text" placeholder="e.g. Flybridge" />
+        </label>
+        <label>Zone 4 name (zone4)
+          <input id="fusion-z4" type="text" placeholder="e.g. Cabin" />
         </label>
         <p class="hint">
-          Reads/controls <code>entertainment.device.&lt;id&gt;.*</code> via the
-          <code>signalk-fusion-stereo</code> plugin on your Signal K server (the
-          Fusion connects over NMEA 2000). The device id and zone come from that
-          plugin's configuration.
+          Reads/controls <code>entertainment.device.&lt;id&gt;.output.&lt;zone&gt;.*</code>
+          via the <code>signalk-fusion-stereo</code> plugin (the Fusion connects
+          over NMEA 2000). Name each speaker zone you have; leave a zone blank to
+          hide it. Source and playback are unit-wide; volume/mute are per zone.
         </p>
       </fieldset>
 

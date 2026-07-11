@@ -61,10 +61,16 @@ const DEFAULTS = {
   },
 
   // Fusion stereo, via NMEA 2000 and the signalk-fusion-stereo plugin. Reads and
-  // controls entertainment.device.<deviceId>.* on the given output zone.
+  // controls entertainment.device.<deviceId>.output.<zoneId>.*  Label the speaker
+  // zones you have; leave a label blank to hide that zone.
   fusion: {
     deviceId: 'fusion1',
-    zone: 'zone1',
+    zones: [
+      { id: 'zone1', label: 'Saloon' },
+      { id: 'zone2', label: 'Cockpit' },
+      { id: 'zone3', label: 'Flybridge' },
+      { id: 'zone4', label: '' },
+    ],
   },
 
   // Anchor watch. When set, the app alarms if the boat drifts beyond radius.

@@ -770,10 +770,38 @@ legend { padding: 0 8px; color: var(--text-dim); font-size: 13px; text-transform
 }
 .ent-btn:active { transform: scale(0.96); }
 
-.ent-volume { display: flex; align-items: center; gap: 12px; }
-.ent-vol-icon { font-size: 18px; }
-.ent-vol-slider { flex: 1; accent-color: var(--accent); height: 26px; }
-.ent-vol-val { min-width: 56px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.ent-zones-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.ent-zones { display: flex; flex-direction: column; gap: 10px; }
+.ent-zone {
+  display: grid;
+  grid-template-columns: 6.5em 44px 1fr 3.5em;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--ring);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.ent-zone-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ent-zbtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--ring);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 17px;
+  cursor: pointer;
+}
+.ent-zbtn.muted { border-color: var(--crit); color: var(--crit); }
+.ent-zvol { width: 100%; accent-color: var(--accent); height: 26px; }
+.ent-zval { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 
 .ent-sources { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .ent-source {
