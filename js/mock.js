@@ -6,6 +6,7 @@
 import { store } from './state.js';
 import { settings } from './config.js';
 import { getCommanded } from './gencontrol.js';
+import { applyFusionDemo } from './fusion.js';
 
 let timer = null;
 
@@ -216,6 +217,9 @@ function tick() {
       g('load', 0);
     }
   }
+
+  // Fusion stereo — mirror the simulated entertainment state into the store.
+  applyFusionDemo();
 
   // AIS targets drift around, offset from our own position.
   for (const t of aisTargets) {

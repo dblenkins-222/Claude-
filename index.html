@@ -45,6 +45,7 @@
     <button id="tab-weather" class="tab">Weather Radar</button>
     <button id="tab-tides" class="tab">Tides</button>
     <button id="tab-cameras" class="tab">Cameras</button>
+    <button id="tab-entertainment" class="tab">Entertainment</button>
   </nav>
 
   <main id="dashboard" class="dashboard view"><!-- built by dashboard.js --></main>
@@ -88,6 +89,10 @@
     <div id="tide-graph-wrap" class="tide-graph-wrap">
       <svg id="tide-graph" class="tide-graph"></svg>
     </div>
+  </section>
+
+  <section id="entertainment-view" class="view" hidden>
+    <div id="entertainment-content" class="ent-grid"><!-- built by entertainment.js --></div>
   </section>
 
   <!-- Settings modal -->
@@ -253,6 +258,22 @@
           through a gateway (go2rtc / MediaMTX / Frigate) that outputs HLS or MJPEG.
           Leave a URL blank to hide that camera; use <em>Auto</em> to detect the
           type from the URL.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Entertainment (Fusion stereo)</legend>
+        <label>Fusion device id
+          <input id="fusion-id" type="text" placeholder="e.g. fusion1" />
+        </label>
+        <label>Output zone
+          <input id="fusion-zone" type="text" placeholder="e.g. zone1" />
+        </label>
+        <p class="hint">
+          Reads/controls <code>entertainment.device.&lt;id&gt;.*</code> via the
+          <code>signalk-fusion-stereo</code> plugin on your Signal K server (the
+          Fusion connects over NMEA 2000). The device id and zone come from that
+          plugin's configuration.
         </p>
       </fieldset>
 

@@ -60,6 +60,7 @@ all hardware plumbing lives on the server side.
 - **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay — plus a **Today's Forecast** panel (min/max temp, wind, rain, humidity, UV, sunrise/sunset) and a **7-day extended forecast**
 - **Tides tab**: a tide graph for the vessel's position (current height, next high/low, and a smooth 3-day curve with high/low markers and a "now" indicator), built for Australian waters
 - **Cameras tab**: up to 4 IP camera streams in an adaptive grid with tap-to-expand (MJPEG, JPEG snapshot, HLS, and plain video)
+- **Entertainment tab**: control the Fusion stereo over NMEA 2000 — source selection (AM / FM / Bluetooth / CD / AUX / DVD), now-playing info, play/pause, next/prev, mute and volume
 - Demo mode with realistic simulated data (including AIS traffic and engine data)
 - Day / night themes and configurable units (knots/kmh, °C/°F, m/ft)
 - Stale-data indicators when a sensor stops updating
@@ -186,6 +187,19 @@ the weather-radar animation and background refresh whenever the Weather tab isn'
 open, and shows a single static radar frame instead of looping. The dashboard,
 electrical and LAN-camera data use no internet; forecast and tides are only a few
 KB per refresh.
+
+### Entertainment (Fusion stereo)
+
+The **Entertainment** tab controls the Fusion stereo over NMEA 2000. It shows the
+current **source**, now-playing track/station, play state and volume, and lets you
+switch between **AM, FM, Bluetooth, CD, AUX and DVD**, play/pause, skip, mute and
+adjust volume. In demo mode it's fully simulated.
+
+For live control it uses the [`signalk-fusion-stereo`](https://www.npmjs.com/package/signalk-fusion-stereo)
+plugin on your Signal K server, which reads/writes `entertainment.device.<id>.*`.
+Set the **Fusion device id** and **output zone** in **⚙ Settings → Entertainment**
+to match that plugin's configuration. Exact source names/indexes vary by unit, so
+source switching may need to match your stereo's setup.
 
 ### Connecting to live data
 

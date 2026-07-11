@@ -60,6 +60,13 @@ const DEFAULTS = {
     nominalVoltage: 240,
   },
 
+  // Fusion stereo, via NMEA 2000 and the signalk-fusion-stereo plugin. Reads and
+  // controls entertainment.device.<deviceId>.* on the given output zone.
+  fusion: {
+    deviceId: 'fusion1',
+    zone: 'zone1',
+  },
+
   // Anchor watch. When set, the app alarms if the boat drifts beyond radius.
   anchor: {
     set: false,       // true once an anchor position is dropped

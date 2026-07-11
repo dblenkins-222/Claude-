@@ -11,6 +11,7 @@ import { initWeather, onWeatherShown, onWeatherHidden } from './weather.js';
 import { initCameras, onCamerasShown, onCamerasHidden, rebuildCameras } from './camera.js';
 import { initElectrical, onElectricalShown, rebuildElectrical } from './electrical.js';
 import { initTides, onTidesShown } from './tides.js';
+import { initEntertainment, onEntertainmentShown } from './entertainment.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -101,6 +102,9 @@ function openSettings() {
   el('elec-dc-voltage').value = dc.nominalVoltage ?? 12;
   el('elec-discharge-neg').checked = dc.dischargeNegative !== false;
   el('elec-ac-voltage').value = (settings.acSystem && settings.acSystem.nominalVoltage) ?? 240;
+  const fu = settings.fusion || {};
+  el('fusion-id').value = fu.deviceId || '';
+  el('fusion-zone').value = fu.zone || '';
   const cams = settings.cameras || [];
   for (let i = 0; i < 4; i++) {
     const c = cams[i] || {};
@@ -157,6 +161,10 @@ function saveSettingsForm() {
   }
   settings.cameras = cameras;
   const camsChanged = JSON.stringify(settings.cameras) !== prevCams;
+  settings.fusion = {
+    deviceId: el('fusion-id').value.trim() || 'fusion1',
+    zone: el('fusion-zone').value.trim() || 'zone1',
+  };
   saveSettings();
   el('settings-modal').classList.remove('open');
   // Rebuild affected views so the panels reflect the new config.
@@ -165,6 +173,7 @@ function saveSettingsForm() {
   if (camsChanged) rebuildCameras();
   // Re-apply weather radar activity (e.g. data-saver just toggled) if viewing it.
   if (!el('weather-view').hidden) onWeatherShown();
+  if (!el('entertainment-view').hidden) onEntertainmentShown();
   // If we're live, reconnect with the new host.
   if (!settings.demoMode) goLive();
 }
@@ -196,6 +205,11 @@ function initTabs() {
       view: el('cameras-view'),
       onShow: () => { initCameras(); onCamerasShown(); },
       onHide: () => onCamerasHidden(),
+    },
+    entertainment: {
+      btn: el('tab-entertainment'),
+      view: el('entertainment-view'),
+      onShow: () => { initEntertainment(); onEntertainmentShown(); },
     },
   };
   function show(name) {
