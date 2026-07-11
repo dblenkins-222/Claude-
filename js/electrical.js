@@ -12,10 +12,14 @@ import { settings } from './config.js';
 import * as U from './units.js';
 import { createLevelBar } from './widgets.js';
 import { commandGenerator, onGenControlChange, getLastMessage } from './gencontrol.js';
+import { getSeries, onHistoryChange } from './history.js';
 
 const STALE_MS = 8000;
+const NS = 'http://www.w3.org/2000/svg';
 const renderers = [];
 let built = false;
+let chartRefs = {}; // 'dc'|'ac' -> { wrap, svg, consNow, prodNow }
+let chartsWired = false;
 
 export function initElectrical() {
   if (built) return;
@@ -30,7 +34,14 @@ export function initElectrical() {
     requestAnimationFrame(() => { queued = false; renderAll(); });
   });
   onGenControlChange(renderAll);
+  // Redraw the 24h charts when new samples arrive, on resize, and on show.
+  if (!chartsWired) {
+    chartsWired = true;
+    onHistoryChange(renderCharts);
+    window.addEventListener('resize', renderCharts);
+  }
   renderAll();
+  renderCharts();
 }
 
 // Rebuild when the electrical/generator config changes.
@@ -39,10 +50,12 @@ export function rebuildElectrical() {
   renderers.length = 0;
   buildAll(document.getElementById('electrical-content'));
   renderAll();
+  renderCharts();
 }
 
 export function onElectricalShown() {
   renderAll();
+  renderCharts();
 }
 
 function renderAll() {
@@ -55,7 +68,9 @@ function buildAll(root) {
   root.appendChild(buildBatterySection('Crank Battery Bank', settings.dcSystem.crankShuntId || 'starter', { timeRemaining: false }));
   root.appendChild(buildSolarSection());
   root.appendChild(buildDcLoadsSection());
+  root.appendChild(buildPowerChartSection('dc', '12 VDC Power \u2014 last 24 h'));
   root.appendChild(buildAcLoadsSection());
+  root.appendChild(buildPowerChartSection('ac', '240 VAC Power \u2014 last 24 h'));
   if (settings.generator && settings.generator.id) {
     root.appendChild(buildGeneratorSection(settings.generator));
   }
@@ -365,4 +380,108 @@ function formatDuration(seconds) {
   const m = Math.floor((seconds % 3600) / 60);
   if (h >= 100) return `${h}h`;
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+
+// ---- 24-hour power line graphs (consumption vs production) ----------------
+function buildPowerChartSection(kind, title) {
+  const { sec, body } = section(title, 'elec');
+
+  const legend = document.createElement('div');
+  legend.className = 'chart-legend';
+  legend.innerHTML =
+    `<span class="chart-key cons"><i></i>Consumption <b id="chart-${kind}-cons">--</b></span>` +
+    `<span class="chart-key prod"><i></i>Production <b id="chart-${kind}-prod">--</b></span>`;
+  body.appendChild(legend);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'chart-wrap';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'chart-svg');
+  wrap.appendChild(svg);
+  body.appendChild(wrap);
+
+  chartRefs[kind] = {
+    wrap,
+    svg,
+    consNow: legend.querySelector(`#chart-${kind}-cons`),
+    prodNow: legend.querySelector(`#chart-${kind}-prod`),
+  };
+  return sec;
+}
+
+function renderCharts() {
+  drawChart('dc', getSeries('dcCons'), getSeries('dcProd'));
+  drawChart('ac', getSeries('acCons'), getSeries('acProd'));
+}
+
+function linePath(pts) {
+  return pts.length ? 'M ' + pts.map((p) => `${p[0]} ${p[1]}`).join(' L ') : '';
+}
+
+function fmtW(v) {
+  if (v == null) return '--';
+  return v >= 1000 ? (v / 1000).toFixed(1) + ' kW' : Math.round(v) + ' W';
+}
+
+function drawChart(kind, consSeries, prodSeries) {
+  const ref = chartRefs[kind];
+  if (!ref) return;
+  const { svg, wrap, consNow, prodNow } = ref;
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const last = (s) => (s.length ? s[s.length - 1][1] : null);
+  consNow.textContent = fmtW(last(consSeries));
+  prodNow.textContent = fmtW(last(prodSeries));
+
+  const W = Math.max(320, wrap.clientWidth || 600);
+  const H = Math.max(180, wrap.clientHeight || 200);
+  const padL = 46, padR = 12, padT = 12, padB = 24;
+  const now = Date.now();
+  const t0 = now - 24 * 60 * 60 * 1000;
+
+  const vals = [...consSeries, ...prodSeries].filter((p) => p[0] >= t0).map((p) => p[1]);
+  let yMax = vals.length ? Math.max(...vals) : 100;
+  yMax = Math.max(100, Math.ceil(yMax / 100) * 100);
+
+  const X = (t) => padL + (t - t0) / (now - t0) * (W - padL - padR);
+  const Y = (v) => padT + (1 - v / yMax) * (H - padT - padB);
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+
+  const add = (tag, attrs, text) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    svg.appendChild(e);
+    return e;
+  };
+
+  for (let i = 0; i <= 4; i++) {
+    const v = yMax * i / 4;
+    const y = Y(v);
+    add('line', { x1: padL, y1: y, x2: W - padR, y2: y, class: 'chart-grid' });
+    add('text', { x: padL - 6, y: y + 4, class: 'chart-label', 'text-anchor': 'end' }, fmtW(v));
+  }
+
+  for (let ms = Math.ceil(t0 / 3.6e6) * 3.6e6; ms <= now; ms += 3.6e6) {
+    const d = new Date(ms);
+    if (d.getHours() % 6 !== 0) continue;
+    const x = X(ms);
+    add('line', { x1: x, y1: padT, x2: x, y2: H - padB, class: 'chart-vgrid' });
+    add('text', { x, y: H - padB + 15, class: 'chart-label', 'text-anchor': 'middle' },
+      String(d.getHours()).padStart(2, '0') + ':00');
+  }
+  add('text', { x: W - padR, y: padT - 2, class: 'chart-now-label', 'text-anchor': 'end' }, 'now');
+
+  const toPts = (s) => s.filter((p) => p[0] >= t0).map((p) => [X(p[0]), Y(p[1])]);
+  const prod = toPts(prodSeries);
+  const cons = toPts(consSeries);
+  if (prod.length > 1) add('path', { d: linePath(prod), class: 'chart-prod' });
+  if (cons.length > 1) add('path', { d: linePath(cons), class: 'chart-cons' });
+  if (cons.length < 2 && prod.length < 2) {
+    add('text', { x: W / 2, y: H / 2, class: 'chart-empty', 'text-anchor': 'middle' }, 'Building history\u2026');
+  }
 }

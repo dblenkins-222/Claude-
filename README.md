@@ -50,7 +50,7 @@ all hardware plumbing lives on the server side.
 
 - Navigation: speed (SOG), heading with live compass, course (COG), depth, GPS position
 - Engine: RPM tachometer gauge, engine temperature, oil pressure, engine load (with red-line / over-temp / low-oil warnings)
-- **Electrical tab**: a dedicated power page with the **House Battery Bank** and **Crank Battery Bank** (each from a Victron SmartShunt), **12 VDC loads** (calculated from the house SmartShunt), **240 VAC loads**, and the **Onan generator** (run status, output power/voltage/frequency, load, coolant temp, oil pressure, RPM, runtime hours) — including a **generator Start / Stop button**
+- **Electrical tab**: a dedicated power page with the **House Battery Bank** and **Crank Battery Bank** (each from a Victron SmartShunt), **12 VDC loads** (calculated from the house SmartShunt), **240 VAC loads**, **24-hour line graphs of 12 VDC and 240 VAC consumption vs. production**, and the **Onan generator** (run status, output power/voltage/frequency, load, coolant temp, oil pressure, RPM, runtime hours) — including a **generator Start / Stop button**
 - Wind: apparent wind dial plus apparent/true speed and angle
 - **AIS targets**: north-up radar plot of nearby vessels plus a ranged list (name, distance, bearing, speed); close contacts are highlighted
 - **Anchor watch**: drop/weigh anchor, adjustable alarm radius, live drift distance and bearing, with an audible + full-screen visual **drag alarm**
@@ -138,6 +138,7 @@ The **Electrical** tab consolidates the boat's power systems:
 - **Solar · MPPT** — PV power, PV voltage, charge current, and today's yield (`electrical.solar.<id>.*`)
 - **12 VDC loads** — calculated from the house SmartShunt as *bus voltage × discharge current*. Configure the house and crank shunt battery ids, DC nominal voltage, and the discharge-current sign convention in **⚙ Settings → Electrical**.
 - The standalone "Electrical · Victron" panel has been removed from the Dashboard; electrical data now lives on this tab.
+- **24-hour power graphs** — two line charts show **consumption vs. production** over the last 24 h for **12 VDC** (discharge vs. charge, from the house SmartShunt) and **240 VAC** (`electrical.ac.consumption.power` vs. `electrical.ac.input.power`). Power is sampled once a minute into a rolling 24 h buffer; in **live mode** it's persisted to the browser so a reload keeps the history, and in **demo mode** a realistic 24 h is pre-seeded. (240 VAC production needs an AC source meter / inverter-charger reporting `electrical.ac.input.power`; without one the production line stays flat.)
 - **240 VAC loads** — from `electrical.ac.consumption.*` (power, voltage, current)
 - **Onan generator** — the full generator panel, moved here from the dashboard
 

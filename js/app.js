@@ -12,6 +12,7 @@ import { initCameras, onCamerasShown, onCamerasHidden, rebuildCameras } from './
 import { initElectrical, onElectricalShown, rebuildElectrical } from './electrical.js';
 import { initTides, onTidesShown } from './tides.js';
 import { initEntertainment, onEntertainmentShown, rebuildEntertainment } from './entertainment.js';
+import { startHistory, resetHistoryForMode } from './history.js';
 
 const el = (id) => document.getElementById(id);
 
@@ -61,6 +62,7 @@ function goDemo() {
   settings.demoMode = true;
   saveSettings();
   startMock();
+  resetHistoryForMode();
   reflectMode();
 }
 
@@ -69,6 +71,7 @@ function goLive() {
   settings.demoMode = false;
   saveSettings();
   connectSignalK();
+  resetHistoryForMode();
   reflectMode();
 }
 
@@ -273,6 +276,7 @@ function main() {
   startAnchorWatch();
   initAlarmBanner();
   initTabs();
+  startHistory();
 
   // Controls
   el('btn-theme').addEventListener('click', () => {

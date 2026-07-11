@@ -159,6 +159,11 @@ function tick() {
   set('electrical.ac.consumption.power', sim.acLoad);
   set('electrical.ac.consumption.voltage', acVoltage);
   set('electrical.ac.consumption.current', sim.acLoad / acVoltage);
+  // AC production = source (shore / generator) supplying loads + charger.
+  const acInput = sim.acLoad + 150 + Math.random() * 120;
+  set('electrical.ac.input.power', acInput);
+  set('electrical.ac.input.voltage', acVoltage);
+  set('electrical.ac.input.current', acInput / acVoltage);
 
   set('tanks.fuel.main.currentLevel', sim.fuel);
   set('tanks.freshWater.main.currentLevel', sim.freshWater);
