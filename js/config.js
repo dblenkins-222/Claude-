@@ -68,7 +68,7 @@ const DEFAULTS = {
     zones: [
       { id: 'zone1', label: 'Saloon' },
       { id: 'zone2', label: 'Cockpit' },
-      { id: 'zone3', label: 'Flybridge' },
+      { id: 'zone3', label: '' },
       { id: 'zone4', label: '' },
     ],
   },

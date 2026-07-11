@@ -60,7 +60,7 @@ all hardware plumbing lives on the server side.
 - **Weather radar tab**: a live map centered on your GPS position with animated precipitation radar (play/pause + timeline), a boat marker that follows you, and a nautical seamark overlay — plus a **Today's Forecast** panel (min/max temp, wind, rain, humidity, UV, sunrise/sunset) and a **7-day extended forecast**
 - **Tides tab**: a tide graph for the vessel's position (current height, next high/low, and a smooth 3-day curve with high/low markers and a "now" indicator), built for Australian waters
 - **Cameras tab**: up to 4 IP camera streams in an adaptive grid with tap-to-expand (MJPEG, JPEG snapshot, HLS, and plain video)
-- **Entertainment tab**: control the Fusion stereo over NMEA 2000 — source selection (AM / FM / Bluetooth / CD / AUX / DVD), now-playing info, play/pause, next/prev, and **per-zone volume + mute** (Saloon / Cockpit / Flybridge…)
+- **Entertainment tab**: control the Fusion stereo over NMEA 2000 — source selection (AM / FM / Bluetooth / CD / AUX / DVD), now-playing info, play/pause, next/prev, and **per-zone volume + mute** (e.g. Saloon, Cockpit — configurable in Settings)
 - Demo mode with realistic simulated data (including AIS traffic and engine data)
 - Day / night themes and configurable units (knots/kmh, °C/°F, m/ft)
 - Stale-data indicators when a sensor stops updating
